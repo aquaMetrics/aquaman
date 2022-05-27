@@ -9,10 +9,9 @@
 #'
 #' @examples
 #' \dontrun{
-#' area <- assess(demo_data)
+#' area <- assess(demo_iqi)
 #' }
 assess <- function(data) {
-
   probs <- probability_non_linear(data)
   overrides <- override(probs)
   breachs <- breach(overrides)

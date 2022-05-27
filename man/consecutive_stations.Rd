@@ -18,6 +18,6 @@ stations have been sampled.
 }
 \examples{
 \dontrun{
-stations <- consecutive_stations(demo_data)
+stations <- consecutive_stations(demo_iqi)
 }
 }

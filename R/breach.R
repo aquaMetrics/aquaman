@@ -17,11 +17,10 @@
 #'
 #' @examples
 #' \dontrun{
-#' probability <- probability_non_linear(demo_data)
+#' probability <- probability_non_linear(demo_iqi)
 #' breach <- breach(probability)
 #' }
 breach <- function(data) {
-
   inSurveyData <- data[["data"]]
   geoDf <- data[["geoDf"]]
   geoDfBestFit <- data[["geoDfBestFit"]]
@@ -38,10 +37,10 @@ breach <- function(data) {
     sp <- spTransform(
       SpatialPoints(
         data.frame(
-        as.numeric(easting[mask]),
-        as.numeric(northing[mask])
-      ),
-      proj4string = CRS(bng)
+          as.numeric(easting[mask]),
+          as.numeric(northing[mask])
+        ),
+        proj4string = CRS(bng)
       ),
       CRS(wgs84)
     )
@@ -155,8 +154,10 @@ breach <- function(data) {
     geoDfBestFit <- cbind(geoDfBestFit, LatLonBestFit)
 
     # Data prep complete: onto the calc proper
-    positionBestFit <- cbind(as.numeric(geoDfBestFit$Longitude),
-                             as.numeric(geoDfBestFit$Latitude))
+    positionBestFit <- cbind(
+      as.numeric(geoDfBestFit$Longitude),
+      as.numeric(geoDfBestFit$Latitude)
+    )
     bearingBestFit <- as.numeric(geoDfBestFit$Bearing)
     breachDistanceBestFit <- as.numeric(geoDfBestFit$D2G)
 
@@ -180,11 +181,11 @@ breach <- function(data) {
   }
   breachCoordinatesOut <- group_by(breachCoordinatesOut, .data$MCFF_Transect)
   breachCoordinatesOut <- mutate(breachCoordinatesOut,
-           "Rank" = 1:n(),
-           "breachLongitude_50thPercentile" = median(.data$breachLongitude),
-           "breachLatitude_50thPercentile" = median(.data$breachLatitude),
-           "breachDistance_50thPercentile" = median(.data$breachDistance)
-          )
+    "Rank" = 1:n(),
+    "breachLongitude_50thPercentile" = median(.data$breachLongitude),
+    "breachLatitude_50thPercentile" = median(.data$breachLatitude),
+    "breachDistance_50thPercentile" = median(.data$breachDistance)
+  )
   breachCoordinatesOut <- ungroup(breachCoordinatesOut)
 
   # Return named list of outputs ----------------------------------------------
@@ -193,8 +194,10 @@ breach <- function(data) {
     breachCoordinatesOut,
     breachCoordinatesBestFitOut
   )
-  names(data) <- c("surveyData",
-                   "breachPositionEnsemble",
-                   "breachPositionBestFit")
+  names(data) <- c(
+    "surveyData",
+    "breachPositionEnsemble",
+    "breachPositionBestFit"
+  )
   return(data)
 }

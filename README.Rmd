@@ -42,11 +42,11 @@ library(aquaman)
 
 ```r
 ## Run the demo data and return the area of the mixing zone
-area <- assess(demo_data)
+area <- assess(demp_iqi)
 ```
 
 Here's an example of input data required:
 
 ```{r demo_data}
-demo_data
+demo_iqi
 ```

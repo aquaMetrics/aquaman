@@ -11,7 +11,7 @@
 #' @importFrom purrr map_df
 #' @examples
 #' \dontrun{
-#' probability <- probability_non_linear(demo_data)
+#' probability <- probability_non_linear(demo_iqi)
 #' breach <- breach(probability)
 #' area <- area(breach)
 #' plot(area[["ellipse"]])
@@ -26,12 +26,16 @@ area <- function(data) {
   breachPositionEnsemble <- data[["breachPositionEnsemble"]]
   breachPositionBestFit <- data[["breachPositionBestFit"]]
 
-  breachPositionEnsemble <- map_df(split(breachPositionEnsemble,
-                                       breachPositionEnsemble$MCFF_Transect),
-                                       function(x) {
-                                         x$rank <- 1:nrow(x)
-                                         return(x)
-                                       })
+  breachPositionEnsemble <- map_df(
+    split(
+      breachPositionEnsemble,
+      breachPositionEnsemble$MCFF_Transect
+    ),
+    function(x) {
+      x$rank <- 1:nrow(x)
+      return(x)
+    }
+  )
 
 
   transectCombinations <- unique(breachPositionEnsemble$rank)
@@ -94,13 +98,14 @@ area <- function(data) {
         ellipseArea <- rbind(ellipseArea, ellipseArea_i)
         fifthPercentileAreaDynamic[i] <-
           stats::quantile(as.vector(ellipseArea$Area),
-          probs = c(.05)
-        )
+            probs = c(.05)
+          )
       }
     }
 
     fifthPercentileArea <- stats::quantile(as.vector(ellipseArea$Area),
-                                           probs = c(.05))
+      probs = c(.05)
+    )
     newOuterGeometry <- function(inputDf) {
 
       ## select number of points
@@ -112,7 +117,6 @@ area <- function(data) {
       writeBin(pts, rc, size = 4)
 
       for (i in 1:pts) {
-
         lattitudeCol <- "Latitude"
         longitudeCol <- "Longitude"
         ## long
@@ -161,8 +165,10 @@ area <- function(data) {
 
     ellipse <- sf::st_sf(
       sf::st_sfc(
-        sf::st_polygon(list(as.matrix(actualEllipse_bestFit)))),
-      crs = 4326)
+        sf::st_polygon(list(as.matrix(actualEllipse_bestFit)))
+      ),
+      crs = 4326
+    )
   }
   data <- list(ellipse, fifthPercentileArea, outDf)
   names(data) <- c("ellipse", "fifthPercentileArea", "spotfire_ellipse")

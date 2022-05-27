@@ -1,10 +1,9 @@
 test_that("area function output matches Spotfire script", {
-  probability <- probability_non_linear(demo_data)
+  probability <- probability_non_linear(demo_iqi)
   breach <- breach(probability)
   area <- area(breach)
-  expect_equal(class(area$ellipse), c("sf","data.frame"))
+  expect_equal(class(area$ellipse), c("sf", "data.frame"))
   # Matches Spotfire script output for Bellister 2021-05-26
   expect_equal(area$fifthPercentileArea[[1]][1], 96914.924)
   expect_equal(class(area$spotfire_ellipse), "AsIs")
-
 })

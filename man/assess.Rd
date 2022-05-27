@@ -17,6 +17,6 @@ Assess if IQI survey data breaches mixing zone.
 }
 \examples{
 \dontrun{
-area <- assess(demo_data)
+area <- assess(demo_iqi)
 }
 }

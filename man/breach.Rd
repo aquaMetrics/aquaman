@@ -21,7 +21,7 @@ Calculates the breach distance from centre of ellipse for each transect.
 }
 \examples{
 \dontrun{
-probability <- probability_non_linear(demo_data)
+probability <- probability_non_linear(demo_iqi)
 breach <- breach(probability)
 }
 }

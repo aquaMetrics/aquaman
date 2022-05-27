@@ -2,6 +2,9 @@ question -> assess -> action
 
 library(aquaman)
 
+app()
+
+
 test_iqi <- assess(demo_demo)
 
   probs <- probability_non_linear(data)
@@ -11,7 +14,9 @@ test_iqi <- assess(demo_demo)
 
 test_family <- assess(demo_family)
 
-  data <- predict_iqi(taxa)
+  taxa <- assign_taxa(path = demo_path()) # input is path to folder
+  taxa <-
+  data <- iqi() # IQI EQR?
   probs <- probability_non_linear(data)
   overrides <- override(probs)
   breachs <- breach(overrides)
@@ -21,7 +26,7 @@ test_dna <- assess(demo_dna)
 
 
 
-questions(demo_data)
+questions(demo_iqi)
 date_taken, location_id, question, response
 12, "Bellister_1", easting, 122424
 12, rw3r3, northing, 12455

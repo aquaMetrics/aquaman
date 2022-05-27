@@ -1,5 +1,5 @@
 test_that("probability_non_linear fuinction matches outputs from Spotfire script", {
-  data <- probability_non_linear(demo_data)
+  data <- probability_non_linear(demo_iqi)
   distance_to_good <- data[["geoDf"]]
   best_fit <- data[["geoDfBestFit"]]
   hex <- data[["hexdfOut"]]

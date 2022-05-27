@@ -18,6 +18,6 @@ Probability Non-linear
 }
 \examples{
 \dontrun{
-probability <- probability_non_linear(demo_data)
+probability <- probability_non_linear(demo_iqi)
 }
 }

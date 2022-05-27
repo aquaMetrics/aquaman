@@ -13,7 +13,7 @@
 #' @importFrom envalysis mselect
 #' @examples
 #' \dontrun{
-#' probability <- probability_non_linear(demo_data)
+#' probability <- probability_non_linear(demo_iqi)
 #' }
 probability_non_linear <- function(data) {
 
@@ -165,20 +165,22 @@ probability_non_linear <- function(data) {
         otrace = FALSE
       )
     ))
-   # Calculate Easting and Northing for re-use later
+    # Calculate Easting and Northing for re-use later
     easting_min <- unique(
       innerTransect$Easting[innerTransect$Distance ==
-                              min(innerTransect$Distance)])
+        min(innerTransect$Distance)]
+    )
     northing_min <- unique(
       innerTransect$Northing[innerTransect$Distance ==
-                               min(innerTransect$Distance)])
+        min(innerTransect$Distance)]
+    )
 
     easting_reduced <-
       innerTransect$Easting[innerTransect$Distance ==
-                              reducedSamplingD2G][1]
+        reducedSamplingD2G][1]
     northing_reduced <-
       innerTransect$Northing[innerTransect$Distance ==
-                               reducedSamplingD2G][1]
+        reducedSamplingD2G][1]
 
     if ((numberOfStations < 7) & (is.na(reducedSamplingD2G) == TRUE)) {
       print("If 1.")
@@ -314,7 +316,8 @@ probability_non_linear <- function(data) {
         Transect = unique(innerTransect$Transect),
         Distance = reducedSamplingD2G,
         IQI = unique(
-          innerTransect[innerTransect$Distance == reducedSamplingD2G, ]$IQI),
+          innerTransect[innerTransect$Distance == reducedSamplingD2G, ]$IQI
+        ),
         ID = NA,
         Counts = NA,
         Source = "2 station rule"
@@ -722,8 +725,8 @@ probability_non_linear <- function(data) {
 
       d2g_is_na <- distanceToGoodDist$D2G[is.na(distanceToGoodDist$D2G) == TRUE]
       dontAchieveGoodPercent <- round(100 *
-                                        length(d2g_is_na) /
-                                        length(distanceToGoodDist$D2G), 1)
+        length(d2g_is_na) /
+        length(distanceToGoodDist$D2G), 1)
 
       bootDRCmodsUnlisted <- do.call(rbind.data.frame, bootDRCmods)
       IQIheatData <- cbind(

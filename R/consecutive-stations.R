@@ -11,7 +11,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' stations <- consecutive_stations(demo_data)
+#' stations <- consecutive_stations(demo_iqi)
 #' }
 consecutive_stations <- function(data) {
   # summaryOuput - Survey - Initial checks
@@ -209,7 +209,6 @@ consecutive_stations <- function(data) {
           data.frame(cbind(innerTransect, geoDf))
         )
       }
-
     } # End of outer loop combs
   }
   return(summaryOutput)

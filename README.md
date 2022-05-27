@@ -30,13 +30,13 @@ library(aquaman)
 
 ``` r
 ## Run the demo data and return the area of the mixing zone
-area <- assess(demo_data)
+area <- assess(demp_iqi)
 ```
 
 Here’s an example of input data required:
 
 ``` r
-demo_data
+demo_iqi
 #> # A tibble: 30 × 15
 #>    Survey_date         MCFF      Transect Station   IQI Easting Northing
 #>    <dttm>              <chr>        <dbl>   <dbl> <dbl>   <dbl>    <dbl>

@@ -20,7 +20,7 @@ Function which produces the ellipse mixing area distribution
 }
 \examples{
 \dontrun{
-probability <- probability_non_linear(demo_data)
+probability <- probability_non_linear(demo_iqi)
 breach <- breach(probability)
 area <- area(breach)
 plot(area[["ellipse"]])

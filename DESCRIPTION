@@ -9,9 +9,12 @@ Description: The goal of aquaman is to assess the size of the mixing zone from
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
+biocViews:
 Imports:
   argosfilter,
+  Biostrings,
   cluster,
+  dada2,
   drc,
   dplyr,
   envalysis,
@@ -27,12 +30,26 @@ Remotes:
   cran/argosfilter
 Depends: 
     R (>= 3.60)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 Suggests: 
+    data.table,
+    grid,
+    gtools,
+    lattice,
+    latticeExtra,
     knitr,
+    magrittr,
+    randomForest,
+    RRF,
+    R2wd,
+    reshape2,
     rmarkdown,
+    splitstackshape,
+    strex,
+    stringr,
     testthat (>= 3.0.0),
-    visNetwork,
-    magrittr
+    tidyr,
+    vegan,
+    visNetwork
 Config/testthat/edition: 3
 VignetteBuilder: knitr

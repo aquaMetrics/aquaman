@@ -19,7 +19,7 @@
 #' @importFrom dplyr bind_rows
 #' @examples
 #' \dontrun{
-#' probability <- probability_non_linear(demo_data)
+#' probability <- probability_non_linear(demo_iqi)
 #' probability <- override(probability)
 #' }
 override <- function(data,

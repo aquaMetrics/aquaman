@@ -1,21 +1,21 @@
 test_that("breach function matches spotfire script outputs", {
-  data <- probability_non_linear(demo_data)
+  data <- probability_non_linear(demo_iqi)
   breach <- breach(data)
   breach_positions <- breach[["breachPositionEnsemble"]]
   breach_best_fit_test <- breach[["breachPositionBestFit"]]
   # test data is from Spotfire / R script
   breach_positions_test <- read.csv(
     system.file("extdat",
-                "test-data/2021-05-26-bellister/breach-positions.csv",
-                package = "aquaman"
+      "test-data/2021-05-26-bellister/breach-positions.csv",
+      package = "aquaman"
     )
   )
   breach_positions_test <- breach_positions_test[complete.cases(breach_positions_test), ]
 
   breach_best_fit_test <- read.csv(
     system.file("extdat",
-                "test-data/2021-05-26-bellister/breach-best-fit.csv",
-                package = "aquaman"
+      "test-data/2021-05-26-bellister/breach-best-fit.csv",
+      package = "aquaman"
     )
   )
 
