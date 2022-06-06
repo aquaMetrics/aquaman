@@ -1,5 +1,10 @@
 test_that("breach function matches spotfire script outputs", {
-  data <- probability_non_linear(demo_iqi)
+  data <- readRDS(
+    system.file("extdat",
+                "test-data/2021-05-26-bellister/test-probability.rds",
+                package = "aquaman"
+    )
+  )
   breach <- breach(data)
   breach_positions <- breach[["breachPositionEnsemble"]]
   breach_best_fit_test <- breach[["breachPositionBestFit"]]

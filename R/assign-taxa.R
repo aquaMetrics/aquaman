@@ -2,8 +2,11 @@
 #'
 #' Assign family taxa from fastq files.
 #'
-#' @param path to folder containing fastq files.
-#' @param multithread Set to FALSE on windows. Only applies to dada2::filterAndTrim
+#' @param path to folder containing folder(s) of fastq files. Assuming
+#'   DNA foldernames contain `001` and filenames have format
+#'   `SAMPLENAME_XXX.fastq` - as per normal Illumina naming.
+#' @param multithread Set to FALSE on windows. Only applies to
+#'   dada2::filterAndTrim
 #'   function `https://github.com/benjjneb/dada2/issues/1100`. The rest of the
 #'   DADA2 functions will use multithread even on windows.
 #' @param tax_level The taxonomic levels being assigned. Default is  "family",
@@ -19,7 +22,7 @@
 #' taxa <- assign_taxa(path = demo_path())
 #' }
 #'
-assign_taxa <- function(path = NULL, tax_level = "family", multithread = TRUE) {
+assign_taxa <- function(path = NULL, tax_level = "family", multithread = FALSE) {
   set.seed(100) # Initialize random number generator for reproducibility
   # List all directories in path
   dirs <- sort(list.dirs(path, full.names = TRUE))

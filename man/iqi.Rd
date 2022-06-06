@@ -13,8 +13,9 @@ iqi(predictors)
 dataframe of IQI scores
 }
 \description{
-Based on family-level bacteria taxa predictors calculate the benthic invert
-IQI outcome.
+Using family-level bacteria taxa as predictors, calculate benthic invert IQI
+as an outcome. Model created by Tom Wilding (SAMS), based on training data
+from SEPA And MOWI.
 }
 \examples{
 \dontrun{

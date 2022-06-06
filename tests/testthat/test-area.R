@@ -1,5 +1,10 @@
 test_that("area function output matches Spotfire script", {
-  probability <- probability_non_linear(demo_iqi)
+  probability <- readRDS(
+    system.file("extdat",
+                "test-data/2021-05-26-bellister/test-probability.rds",
+                package = "aquaman"
+    )
+  )
   breach <- breach(probability)
   area <- area(breach)
   expect_equal(class(area$ellipse), c("sf", "data.frame"))

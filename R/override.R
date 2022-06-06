@@ -39,7 +39,7 @@ override <- function(data,
   hexdfOut <- data[["hexdfOut"]]
 
   # Prepare the input in list to make looping / checking easier ---------------
-  transect_overrrides <- data.frame("override" = c(
+  transect_overrides <- data.frame("override" = c(
     overrideTransect1,
     overrideTransect2,
     overrideTransect3,

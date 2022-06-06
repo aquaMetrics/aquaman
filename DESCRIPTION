@@ -24,6 +24,7 @@ Imports:
   sf,
   sp,
   raster,
+  RRF,
   rgdal,
   rlang
 Remotes:
@@ -40,7 +41,6 @@ Suggests:
     knitr,
     magrittr,
     randomForest,
-    RRF,
     R2wd,
     reshape2,
     rmarkdown,

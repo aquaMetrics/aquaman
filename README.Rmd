@@ -20,8 +20,12 @@ knitr::opts_chunk$set(
 
 ## WORK IN PROGRESS - DO NOT USE IN PRODUCTION
 
-The goal of aquaman is to assess the size of the mixing zone from transect based
-ecology sampling.
+The goal of `aquaman` is to calculate ecology metrics and assess the mixing zone
+area, fulfilling these specific steps:
+
+ - Assign bacteria taxa from DNA reads using `dada2` package.
+ - Model IQI metric from assigned bacteria families.
+ - Assess the mixing zone size from IQI sampling results.
 
 ## Installation
 
@@ -32,21 +36,53 @@ install.packages("devtools")
 devtools::install_github("aquametrics/aquaman")
 ```
 
-## Example
+## Area Assessment
 
-This is a basic example which shows you how to solve a common problem:
+This basic example which shows you how to calculate mixing zone from IQI
+input data:
 
 ```{r example}
 library(aquaman)
 ```
 
 ```r
-## Run the demo data and return the area of the mixing zone
-area <- assess(demp_iqi)
+## Run the demo IQI data and return the area of the mixing zone
+area <- assess(demo_iqi)
+area$fifthPercentileArea
+#>      5% 
+#> 96914.92 
 ```
 
-Here's an example of input data required:
+## Model IQI
 
-```{r demo_data}
-demo_iqi
+Using assigned family-level bacteria taxa as predictors, calculate benthic
+invert IQI as an outcome.
+
+```{r}
+# Run the IQI model based on demo taxanomic data
+iqi_scores <- iqi(demo_taxa)
+head(iqi_scores, 5)
 ```
+
+IQI prediction model created by Tom Wilding (SAMS) based on training data from SEPA And
+MOWI.
+
+## Assign Taxa
+
+Assign bacteria families based on S-16 DNA reads. This in time may provide the
+input to `iqi()` function. Currently, a Qiime 2 command line script achieves this
+part of the process.
+
+```
+# Provide a path to the demo data within the package:
+taxa <- assign_taxa(demo_path())
+# ...this could take some time...
+head(taxa, 5)
+#>        sample_id                 Family reads
+#> 1   MHS-ARD-0-E2           Mitochondria     8
+#> 2   MHS-ARD-0-E2           Mitochondria    47
+#> 3   MHS-ARD-0-E2           Mitochondria   384
+#> 4   MHS-ARD-0-E2        Anaerolineaceae     7
+#> 5   MHS-ARD-0-E2                   <NA>    10
+```
+

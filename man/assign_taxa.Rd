@@ -4,16 +4,19 @@
 \alias{assign_taxa}
 \title{Assign Taxa}
 \usage{
-assign_taxa(path = NULL, tax_level = "family", multithread = TRUE)
+assign_taxa(path = NULL, tax_level = "family", multithread = FALSE)
 }
 \arguments{
-\item{path}{to folder containing fastq files.}
+\item{path}{to folder containing folder(s) of fastq files. Assuming
+DNA foldernames contain `001` and filenames have format
+`SAMPLENAME_XXX.fastq` - as per normal Illumina naming.}
 
 \item{tax_level}{The taxonomic levels being assigned. Default is  "family",
 options are c("kingdom", "phylum", "class", "order", "family", "genus",
 "species").}
 
-\item{multithread}{Set to FALSE on windows. Only applies to dada2::filterAndTrim
+\item{multithread}{Set to FALSE on windows. Only applies to
+dada2::filterAndTrim
 function `https://github.com/benjjneb/dada2/issues/1100`. The rest of the
 DADA2 functions will use multithread even on windows.}
 }

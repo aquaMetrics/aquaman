@@ -8,8 +8,12 @@
 
 ## WORK IN PROGRESS - DO NOT USE IN PRODUCTION
 
-The goal of aquaman is to assess the size of the mixing zone from
-transect based ecology sampling.
+The goal of `aquaman` is to calculate ecology metrics and assess the
+mixing zone area, fulfilling these specific steps:
+
+-   Assign bacteria taxa from DNA reads using `dada2` package.
+-   Model IQI metric from assigned bacteria families.
+-   Assess the mixing zone size from IQI sampling results.
 
 ## Installation
 
@@ -20,38 +24,54 @@ install.packages("devtools")
 devtools::install_github("aquametrics/aquaman")
 ```
 
-## Example
+## Area Assessment
 
-This is a basic example which shows you how to solve a common problem:
+This basic example which shows you how to calculate mixing zone from IQI
+input data:
 
 ``` r
 library(aquaman)
 ```
 
 ``` r
-## Run the demo data and return the area of the mixing zone
-area <- assess(demp_iqi)
+## Run the demo IQI data and return the area of the mixing zone
+area <- assess(demo_iqi)
+area$fifthPercentileArea
+#>      5% 
+#> 96914.92 
 ```
 
-Here’s an example of input data required:
+## Model IQI
+
+Using assigned family-level bacteria taxa as predictors, calculate
+benthic invert IQI as an outcome.
 
 ``` r
-demo_iqi
-#> # A tibble: 30 × 15
-#>    Survey_date         MCFF      Transect Station   IQI Easting Northing
-#>    <dttm>              <chr>        <dbl>   <dbl> <dbl>   <dbl>    <dbl>
-#>  1 2021-05-26 00:00:00 Bellister        1       1  0.4   449114  1161084
-#>  2 2021-05-26 00:00:00 Bellister        1       2  0.59  449093  1161101
-#>  3 2021-05-26 00:00:00 Bellister        1       3  0.61  449080  1161123
-#>  4 2021-05-26 00:00:00 Bellister        1       4  0.56  449070  1161126
-#>  5 2021-05-26 00:00:00 Bellister        1       5  0.56  449059  1161130
-#>  6 2021-05-26 00:00:00 Bellister        1       6  0.53  449014  1161163
-#>  7 2021-05-26 00:00:00 Bellister        1       7  0.67  448951  1161214
-#>  8 2021-05-26 00:00:00 Bellister        1       8  0.68  448898  1161259
-#>  9 2021-05-26 00:00:00 Bellister        1       9  0.67  448929  1161312
-#> 10 2021-05-26 00:00:00 Bellister        2       1  0.38  449308  1161055
-#> # … with 20 more rows, and 8 more variables: MCFF_Transect <chr>,
-#> #   Longitude <dbl>, Latitude <dbl>, Bearing <dbl>, Distance <dbl>,
-#> #   `Number of stations per transect` <dbl>, `WFD status` <chr>,
-#> #   MCFF_Transect_Station <chr>
+# Run the IQI model based on demo taxanomic data
+iqi_scores <- iqi(demo_taxa)
+head(iqi_scores, 5)
+#> CTRL_16S_NEG_XXX MOWI_16S_T01_00A MOWI_16S_T01_00B MOWI_16S_T01_025 
+#>        0.7436820        0.6092373        0.6048445        0.7234365 
+#> MOWI_16S_T01_050 
+#>        0.7661803
 ```
+
+IQI prediction model created by Tom Wilding (SAMS) based on training
+data from SEPA And MOWI.
+
+## Assign Taxa
+
+Assign bacteria families based on S-16 DNA reads. This in time may
+provide the input to `iqi()` function. Currently, a Qiime 2 command line
+script achieves this part of the process.
+
+    # Provide a path to the demo data within the package:
+    taxa <- assign_taxa(demo_path())
+    # ...this could take some time...
+    head(taxa, 5)
+    #>        sample_id                 Family reads
+    #> 1   MHS-ARD-0-E2           Mitochondria     8
+    #> 2   MHS-ARD-0-E2           Mitochondria    47
+    #> 3   MHS-ARD-0-E2           Mitochondria   384
+    #> 4   MHS-ARD-0-E2        Anaerolineaceae     7
+    #> 5   MHS-ARD-0-E2                   <NA>    10
