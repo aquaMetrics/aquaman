@@ -24,7 +24,8 @@ DADA2 functions will use multithread even on windows.}
 dataframe containing assigned fmaily level taxa
 }
 \description{
-Assign family taxa from fastq files.
+Assign family taxa from .fastq files. Will prompt you to download taxonomic
+reference file on first use.
 }
 \examples{
 \dontrun{

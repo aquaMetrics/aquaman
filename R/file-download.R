@@ -1,7 +1,7 @@
-
+#' @importFrom rappdirs user_data_dir
 file_download <- function() {
   data_dir <- function() {
-    getOption("aquaman.data_dir", default = rappdirs::user_data_dir("aquaman"))
+    getOption("aquaman.data_dir", default = user_data_dir("aquaman"))
   }
 
   fpath <- paste0(data_dir(), "/silva_nr99_v138.1_train_set.fa.gz")

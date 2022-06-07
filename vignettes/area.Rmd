@@ -19,39 +19,12 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(aquaman)
 library(magrittr)
-library(visNetwork)
 library(dplyr)
 ```
 
 
 ```{r}
-# 
-#  data <- read.csv(system.file("extdat/data-flow", "area.csv", package = "aquaman"))
-# 
-# nodes <- data %>%
-#   select(-from, -to) %>%
-#   unique() %>%
-#   na.omit() %>%
-#   mutate("id" = label)
-# 
-# edges <- data %>%
-#   select(from, to)
-# 
-# 
-# visNetwork(nodes, edges, width = "100%") %>%
-#   visEdges(arrows = "to") %>%
-#   visNodes(
-#     shadow = list(enabled = TRUE, size = 10),
-#     size = 50
-#   ) %>%
-#   visLegend() %>%
-#   visOptions(highlightNearest = list(enabled = T,
-#                                      degree = 2,
-#                                      hover = T)) %>%
-#   visHierarchicalLayout(direction = "UD", levelSeparation = 150) %>%
-#   visOptions(highlightNearest = list(enabled = T, hover = T),
-#              nodesIdSelection = T)
-  
+
 
 ```
 

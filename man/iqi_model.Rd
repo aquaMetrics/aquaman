@@ -5,12 +5,13 @@
 \alias{iqi_model}
 \title{IQI model}
 \format{
-R model object
+R random forest model object created from the `RRF` package.
 }
 \usage{
 iqi_model
 }
 \description{
-IQI model
+Uses assigned bacteria taxa as predictors to calculate the invertebrate IQI
+metric as outcome.
 }
 \keyword{datasets}

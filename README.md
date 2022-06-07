@@ -4,9 +4,15 @@
 # aquaman
 
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/aquaMetrics/aquaman/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/aquaMetrics/aquaman/actions/workflows/R-CMD-check.yaml)
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![Codecov test
+coverage](https://codecov.io/gh/aquaMetrics/aquaman/branch/main/graph/badge.svg)](https://app.codecov.io/gh/aquaMetrics/aquaman?branch=main)
 <!-- badges: end -->
 
-## WORK IN PROGRESS - DO NOT USE IN PRODUCTION
+### WORK IN PROGRESS - DO NOT USE IN PRODUCTION
 
 The goal of `aquaman` is to calculate ecology metrics and assess the
 mixing zone area, fulfilling these specific steps:
@@ -64,6 +70,9 @@ data from SEPA And MOWI.
 Assign bacteria families based on S-16 DNA reads. This in time may
 provide the input to `iqi()` function. Currently, a Qiime 2 command line
 script achieves this part of the process.
+
+*Note*, you will be prompted to download a reference taxonomic file on
+first use. This will be stored locally.
 
     # Provide a path to the demo data within the package:
     taxa <- assign_taxa(demo_path())

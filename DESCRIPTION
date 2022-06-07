@@ -12,7 +12,6 @@ LazyData: true
 biocViews:
 Imports:
   argosfilter,
-  Biostrings,
   cluster,
   dada2,
   drc,
@@ -23,6 +22,7 @@ Imports:
   purrr,
   sf,
   sp,
+  rappdirs,
   raster,
   RRF,
   rgdal,
@@ -33,23 +33,11 @@ Depends:
     R (>= 3.60)
 RoxygenNote: 7.2.0
 Suggests: 
-    data.table,
-    grid,
-    gtools,
-    lattice,
-    latticeExtra,
+    covr,
     knitr,
     magrittr,
-    randomForest,
-    R2wd,
-    reshape2,
     rmarkdown,
-    splitstackshape,
-    strex,
-    stringr,
     testthat (>= 3.0.0),
-    tidyr,
-    vegan,
-    visNetwork
+    tidyr
 Config/testthat/edition: 3
 VignetteBuilder: knitr

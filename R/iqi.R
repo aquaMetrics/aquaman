@@ -14,6 +14,6 @@
 #' iqi_scores <- iqi(demo_taxa)
 #' }
 iqi <- function(predictors) {
-  outcome <- predict(iqi_model, demo_taxa)
+  outcome <- predict(aquaman::iqi_model, predictors)
   return(outcome)
 }

@@ -1,6 +1,7 @@
 #' Assign Taxa
 #'
-#' Assign family taxa from fastq files.
+#' Assign family taxa from .fastq files. Will prompt you to download taxonomic
+#' reference file on first use.
 #'
 #' @param path to folder containing folder(s) of fastq files. Assuming
 #'   DNA foldernames contain `001` and filenames have format
@@ -17,6 +18,8 @@
 #' @importFrom dada2 filterAndTrim learnErrors dada mergePairs makeSequenceTable getSequences removeBimeraDenovo assignTaxonomy plotErrors getUniques
 #' @importFrom dplyr select everything rename starts_with
 #' @importFrom purrr map_df
+#' @importFrom utils head capture.output
+#' @importFrom rlang .data
 #' @examples
 #' \dontrun{
 #' taxa <- assign_taxa(path = demo_path())
@@ -129,7 +132,7 @@ assign_taxa <- function(path = NULL, tax_level = "family", multithread = FALSE) 
     taxa_sequences <- merge(taxa, sequences, by = 0)
     # Return sample_id so easy to join to sample meta data
     taxa_sequences$sample_id <- sample_names
-    taxa_sequences <- select(taxa_sequences, -Row.names)
+    taxa_sequences <- select(taxa_sequences, -.data$Row.names)
     message(paste(capture.output(head(taxa_sequences, 4)), collapse = "\n"))
     # Only want column that matches taxa_level e.g. "Family"
     name <- names(taxa_sequences)[grep(tax_level,
@@ -138,9 +141,9 @@ assign_taxa <- function(path = NULL, tax_level = "family", multithread = FALSE) 
     )]
     taxa_sequences <- select(
       taxa_sequences,
-      sample_id,
+      .data$sample_id,
       starts_with(name),
-      reads
+      .data$reads
     )
   })
   return(taxa)
