@@ -7,7 +7,7 @@ test_that("breach function matches spotfire script outputs", {
   )
   breach <- breach(data)
   breach_positions <- breach[["breachPositionEnsemble"]]
-  breach_best_fit_test <- breach[["breachPositionBestFit"]]
+  breach_best_fit <- breach[["breachPositionBestFit"]]
   # test data is from Spotfire / R script
   breach_positions_test <- read.csv(
     system.file("extdat",
@@ -29,5 +29,5 @@ test_that("breach function matches spotfire script outputs", {
   row.names(breach_positions) <- NULL
   row.names(breach_positions_test) <- NULL
   expect_equal(breach_positions, breach_positions_test)
-  expect_equal(breach_best_fit_test, breach_best_fit_test)
+  expect_equal(breach_best_fit_test, breach_best_fit)
 })

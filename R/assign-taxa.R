@@ -27,6 +27,7 @@
 #'
 assign_taxa <- function(path = NULL, tax_level = "family", multithread = FALSE) {
   set.seed(100) # Initialize random number generator for reproducibility
+  # Read files ---------------------------------------------------
   # List all directories in path
   dirs <- sort(list.dirs(path, full.names = TRUE))
   # Only want folder containing DNA - should be '001'
@@ -34,6 +35,7 @@ assign_taxa <- function(path = NULL, tax_level = "family", multithread = FALSE) 
   # Forward and reverse fastq filenames have format:
   # SAMPLENAME_R1_001.fastq
   # SAMPLENAME_R2_001.fastq
+  # Loop through files ------------------------------------------
   taxa <- map_df(dna_dirs, function(dir) {
     fn_fs <- sort(list.files(dir, pattern = "_R1_001.fastq", full.names = TRUE))
     fn_rs <- sort(list.files(dir, pattern = "_R2_001.fastq", full.names = TRUE))
@@ -55,7 +57,7 @@ assign_taxa <- function(path = NULL, tax_level = "family", multithread = FALSE) 
     names(filt_fs) <- sample_names
     names(filt_rs) <- sample_names
 
-    # Trim
+    # Trim -----------------------------------------------------------
     # Remove primers, see trimLeft parameter.
     # nchar("CTACGGGNGGCWGCAGCCTACGGGNGGCWGCAG")
     # nchar("GACTACHVGGGTATCTAATCCGACTACHVGGGTATCTAATCC")

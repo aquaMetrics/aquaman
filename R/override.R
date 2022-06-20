@@ -58,25 +58,41 @@ override <- function(data,
   bearing_overrides$name <- "bearing"
   overrides <- bind_rows(transect_overrides, bearing_overrides)
   overrides$id <- paste0(overrides$name, overrides$transect)
+  overrides <- overrides[complete.cases(overrides), ]
 
-  # Override values -----------------------------------------------------------
-  map_df(split(overrides, overrides$id), function(row) {
-    if (!is.na(row$override)) {
-      if (row$name == "distance") {
-        geoDf$D2Ghist[geoDf$Transect == row$transect] <<-
-          as.character(row$override)
-        geoDf$D2G[geoDf$Transect == row$transect] <<-
-          as.character(row$override)
-        geoDfBestFit$D2G[geoDf$Transect == row$transect] <<-
-          as.character(row$override)
+  # Override values ---------------------------------------------------
+  geoDf <- map_df(split(geoDf, geoDf$Transect), function(transect) {
+    override <- overrides[overrides$transect == unique(transect$Transect), ]
+    if(nrow(override) > 0) {
+     if (any(override$name %in% "distance")) {
+       transect$D2Ghist <-
+         as.character(override$override[override$name == "distance"])
+        transect$D2G <-
+          as.character(override$override[override$name == "distance"])
       }
-      if (row$name == "bearing") {
-        geoDf$Bearing[geoDf$Transect == row$transect] <<-
-          as.character(row$override)
-        geoDfBestFit$Bearing[geoDf$Transect == row$transect] <<-
-          as.character(row$override)
+      if (any(override$name %in% "bearing")) {
+        transect$Bearing <-
+          as.character(override$override[override$name == "bearing"])
+      }
+   }
+   return(transect)
+  })
+
+  # Bestfit override values ---------------------------------------------------
+  geoDfBestFit <- map_df(split(geoDfBestFit, geoDfBestFit$Transect),
+                         function(transect) {
+    override <- overrides[overrides$transect == transect$Transect, ]
+    if(nrow(override) > 0) {
+       if (any(override$name %in% "distance")) {
+         transect$D2G <-
+           as.character(override$override[override$name == "distance"])
+      }
+      if (any(override$name %in% "bearing")) {
+        transect$Bearing <-
+          as.character(override$override[override$name == "bearing"])
       }
     }
+    return(transect)
   })
 
   # Return values -------------------------------------------------------------

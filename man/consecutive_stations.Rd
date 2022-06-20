@@ -10,7 +10,8 @@ consecutive_stations(data)
 \item{data}{Data frame with survey data}
 }
 \value{
-Data frame with 5 variables.
+A named list of two data frames `sample_point_checks` and
+  `survey_data`
 }
 \description{
 Check if two consecutive station are at Good status and minimum number of

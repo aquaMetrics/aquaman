@@ -5,7 +5,8 @@
 #'
 #' @param data Data frame with survey data
 #'
-#' @return Data frame with 5 variables.
+#' @return A named list of two data frames `sample_point_checks` and
+#'   `survey_data`
 #' @export
 #' @importFrom argosfilter radian
 #'
@@ -15,8 +16,6 @@
 #' }
 consecutive_stations <- function(data) {
   # summaryOuput - Survey - Initial checks
-
-
   set.seed(123)
   stringsAsFactors <- FALSE
   if (length(unique(data$MCFF)) > 1) {
@@ -114,7 +113,6 @@ consecutive_stations <- function(data) {
           Longitude = modelledLineLongitudeDeg
         )
       )
-
       bestFitBearing <- argosfilter::bearing(
         modelledLineRad2Deg$Latitude[1],
         modelledLineRad2Deg$Latitude[length(modelledLineRad2Deg$Latitude)],
@@ -182,9 +180,7 @@ consecutive_stations <- function(data) {
           Transect = unique(innerTransect$Transect),
           stationNumber = stationNumber,
           twoConsecutiveStations = twoConsecutiveStations
-        )) # ,
-        # withinRangeMsg = withinRangeMsg,
-        # stationSpacingMsg = stationSpacingMsg))
+        ))
       } else {
         summaryOutput <- rbind(
           summaryOutput,
@@ -195,9 +191,7 @@ consecutive_stations <- function(data) {
             stationNumber = stationNumber,
             twoConsecutiveStations = twoConsecutiveStations
           ))
-        ) # ,
-        # withinRangeMsg = withinRangeMsg,
-        # stationSpacingMsg = stationSpacingMsg)))
+        )
       }
 
       # Assemble output table
@@ -211,5 +205,7 @@ consecutive_stations <- function(data) {
       }
     } # End of outer loop combs
   }
-  return(summaryOutput)
+  data <- list(summaryOutput, testOutput)
+  names(data) <- c("sample_point_checks", "survey_data")
+  return(data)
 }
