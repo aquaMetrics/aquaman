@@ -28,6 +28,7 @@ test_that("breach function matches spotfire script outputs", {
   breach_positions <- data.frame(breach_positions)
   row.names(breach_positions) <- NULL
   row.names(breach_positions_test) <- NULL
+  breach_best_fit$Transect <-  as.integer(breach_best_fit$Transect)
   expect_equal(breach_positions, breach_positions_test)
   expect_equal(breach_best_fit_test, breach_best_fit)
 })

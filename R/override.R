@@ -17,6 +17,7 @@
 #' @export
 #' @importFrom purrr map_df
 #' @importFrom dplyr bind_rows
+#' @importFrom stats complete.cases
 #' @examples
 #' \dontrun{
 #' probability <- probability_non_linear(demo_iqi)

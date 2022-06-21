@@ -13,8 +13,6 @@ test_that("override works", {
   # Test if no overrides provided then default is not to change output
   expect_equal(areas$fifthPercentileArea[[1]], 96914.924)
 
-  expect_equal(class(override),"list")
-
   overrides <- override(probability,
                         overrideTransect4 = 68,
                         overrideBearing1 = -45.5962205669678,
@@ -23,7 +21,7 @@ test_that("override works", {
                         overrideBearing4 = -142.682429683921)
   breachs <- breach(overrides)
   areas <- area(breachs)
-  # Test against value from original Spotfire tool when default for
+  # Test against value copied from original Spotfire tool when default for
   # overrideTransect4 is set to 68 meters. Bearings have been kept the same, but
   # testing if entering the same bearing value does not change outcome.
   expect_equal(areas$fifthPercentileArea[[1]], 110751.943)

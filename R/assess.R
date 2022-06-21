@@ -12,12 +12,12 @@
 #' area <- assess(demo_iqi)
 #' }
 assess <- function(data) {
-  probs <- probability_non_linear(demo_iqi)
+  probs <- probability_non_linear(data)
   # overrides <- override(probs
   #                        ,
   #                        overrideTransect4 = 68
   #                       )
-  breachs <- breach(overrides)
+  breachs <- breach(probs)
   areas <- area(breachs)
   return(areas$fifthPercentileArea)
 }
