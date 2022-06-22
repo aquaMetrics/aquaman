@@ -22,21 +22,21 @@ override(
 (distances to good),`geoDfBestFit` (best fit distance) to good and
 `hexdfOut` (hexagon heat map).}
 
-\item{overrideTransect1}{Override distance Transect 1}
+\item{overrideTransect1}{Optional override distance Transect 1}
 
-\item{overrideTransect2}{Override distance Transect 2}
+\item{overrideTransect2}{Optional override distance Transect 2}
 
-\item{overrideTransect3}{Override distance Transect 3}
+\item{overrideTransect3}{Optional override distance Transect 3}
 
-\item{overrideTransect4}{Override distance Transect 4}
+\item{overrideTransect4}{Optional override distance Transect 4}
 
-\item{overrideBearing1}{Override bearing Transect 4}
+\item{overrideBearing1}{Optional override bearing Transect 1}
 
-\item{overrideBearing2}{Override bearing Transect 4}
+\item{overrideBearing2}{Optional override bearing Transect 2}
 
-\item{overrideBearing3}{Override bearing Transect 4}
+\item{overrideBearing3}{Optional override bearing Transect 3}
 
-\item{overrideBearing4}{Override bearing Transect 4}
+\item{overrideBearing4}{Optional override bearing Transect 4}
 }
 \value{
 area in meters

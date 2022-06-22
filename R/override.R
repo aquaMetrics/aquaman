@@ -4,14 +4,14 @@
 #'   `probability_non_linear` function. These are:  `data` (survey), `geoDf`
 #'   (distances to good),`geoDfBestFit` (best fit distance) to good and
 #'   `hexdfOut` (hexagon heat map).
-#' @param overrideTransect1 Override distance Transect 1
-#' @param overrideTransect2 Override distance Transect 2
-#' @param overrideTransect3 Override distance Transect 3
-#' @param overrideTransect4 Override distance Transect 4
-#' @param overrideBearing1 Override bearing Transect 4
-#' @param overrideBearing2 Override bearing Transect 4
-#' @param overrideBearing3 Override bearing Transect 4
-#' @param overrideBearing4 Override bearing Transect 4
+#' @param overrideTransect1 Optional override distance Transect 1
+#' @param overrideTransect2 Optional override distance Transect 2
+#' @param overrideTransect3 Optional override distance Transect 3
+#' @param overrideTransect4 Optional override distance Transect 4
+#' @param overrideBearing1 Optional override bearing Transect 1
+#' @param overrideBearing2 Optional override bearing Transect 2
+#' @param overrideBearing3 Optional override bearing Transect 3
+#' @param overrideBearing4 Optional override bearing Transect 4
 #'
 #' @return area in meters
 #' @export
@@ -64,29 +64,12 @@ override <- function(data,
   # Override values ---------------------------------------------------
   geoDf <- map_df(split(geoDf, geoDf$Transect), function(transect) {
     override <- overrides[overrides$transect == unique(transect$Transect), ]
-    if(nrow(override) > 0) {
-     if (any(override$name %in% "distance")) {
-       transect$D2Ghist <-
-         as.character(override$override[override$name == "distance"])
+    if (nrow(override) > 0) {
+      if (any(override$name %in% "distance")) {
+        transect$D2Ghist <-
+          as.character(override$override[override$name == "distance"])
         transect$D2G <-
           as.character(override$override[override$name == "distance"])
-      }
-      if (any(override$name %in% "bearing")) {
-        transect$Bearing <-
-          as.character(override$override[override$name == "bearing"])
-      }
-   }
-   return(transect)
-  })
-
-  # Bestfit override values ---------------------------------------------------
-  geoDfBestFit <- map_df(split(geoDfBestFit, geoDfBestFit$Transect),
-                         function(transect) {
-    override <- overrides[overrides$transect == transect$Transect, ]
-    if(nrow(override) > 0) {
-       if (any(override$name %in% "distance")) {
-         transect$D2G <-
-           as.character(override$override[override$name == "distance"])
       }
       if (any(override$name %in% "bearing")) {
         transect$Bearing <-
@@ -95,6 +78,25 @@ override <- function(data,
     }
     return(transect)
   })
+
+  # Bestfit override values ---------------------------------------------------
+  geoDfBestFit <- map_df(
+    split(geoDfBestFit, geoDfBestFit$Transect),
+    function(transect) {
+      override <- overrides[overrides$transect == transect$Transect, ]
+      if (nrow(override) > 0) {
+        if (any(override$name %in% "distance")) {
+          transect$D2G <-
+            as.character(override$override[override$name == "distance"])
+        }
+        if (any(override$name %in% "bearing")) {
+          transect$Bearing <-
+            as.character(override$override[override$name == "bearing"])
+        }
+      }
+      return(transect)
+    }
+  )
 
   # Return values -------------------------------------------------------------
   data <- list(

@@ -4,10 +4,36 @@
 \alias{assess}
 \title{Assess survey data}
 \usage{
-assess(data)
+assess(
+  data,
+  overrideTransect1 = NA,
+  overrideTransect2 = NA,
+  overrideTransect3 = NA,
+  overrideTransect4 = NA,
+  overrideBearing1 = NA,
+  overrideBearing2 = NA,
+  overrideBearing3 = NA,
+  overrideBearing4 = NA
+)
 }
 \arguments{
 \item{data}{Data frame with survey data}
+
+\item{overrideTransect1}{Optional override distance Transect 1}
+
+\item{overrideTransect2}{Optional override distance Transect 2}
+
+\item{overrideTransect3}{Optional override distance Transect 3}
+
+\item{overrideTransect4}{Optional override distance Transect 4}
+
+\item{overrideBearing1}{Optional override bearing Transect 1}
+
+\item{overrideBearing2}{Optional override bearing Transect 2}
+
+\item{overrideBearing3}{Optional override bearing Transect 3}
+
+\item{overrideBearing4}{Optional override bearing Transect 4}
 }
 \value{
 area in meters

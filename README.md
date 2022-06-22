@@ -14,8 +14,8 @@ coverage](https://codecov.io/gh/aquaMetrics/aquaman/branch/main/graph/badge.svg)
 
 ### WORK IN PROGRESS - DO NOT USE IN PRODUCTION
 
-The goal of `aquaman` is to calculate ecology metrics and assess the
-mixing zone area, fulfilling these specific steps:
+The goal of `aquaman` R package is to calculate ecology metrics and
+assess the mixing zone area, fulfilling these specific steps:
 
 -   Assign bacteria taxa from DNA reads using `dada2` package.
 -   Model IQI metric from assigned bacteria families.
@@ -32,8 +32,8 @@ devtools::install_github("aquametrics/aquaman")
 
 ## Area Assessment
 
-This basic example which shows you how to calculate mixing zone from IQI
-input data:
+This basic example shows you how to calculate mixing zone from IQI input
+data:
 
 ``` r
 library(aquaman)

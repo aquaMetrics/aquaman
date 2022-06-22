@@ -1,8 +1,8 @@
 test_that("area function output matches Spotfire script", {
   probability <- readRDS(
     system.file("extdat",
-                "test-data/2021-05-26-bellister/test-probability.rds",
-                package = "aquaman"
+      "test-data/2021-05-26-bellister/test-probability.rds",
+      package = "aquaman"
     )
   )
   breach <- breach(probability)

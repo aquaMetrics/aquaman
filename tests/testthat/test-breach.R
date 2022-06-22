@@ -1,8 +1,8 @@
 test_that("breach function matches spotfire script outputs", {
   data <- readRDS(
     system.file("extdat",
-                "test-data/2021-05-26-bellister/test-probability.rds",
-                package = "aquaman"
+      "test-data/2021-05-26-bellister/test-probability.rds",
+      package = "aquaman"
     )
   )
   breach <- breach(data)
@@ -28,7 +28,7 @@ test_that("breach function matches spotfire script outputs", {
   breach_positions <- data.frame(breach_positions)
   row.names(breach_positions) <- NULL
   row.names(breach_positions_test) <- NULL
-  breach_best_fit$Transect <-  as.integer(breach_best_fit$Transect)
+  breach_best_fit$Transect <- as.integer(breach_best_fit$Transect)
   expect_equal(breach_positions, breach_positions_test)
   expect_equal(breach_best_fit_test, breach_best_fit)
 })
