@@ -34,9 +34,9 @@ area, fulfilling these specific steps:
 
 You can install the development version of aquaman like so:
 
-``` r
+```r
 install.packages("devtools")
-devtools::install_github("aquametrics/aquaman")
+devtools::install_github("aquaMetrics/aquaman")
 ```
 
 ## Area Assessment
@@ -79,7 +79,7 @@ this part of the process.
 *Note*, you will be prompted to download a reference taxonomic file on first
 use. This will be stored locally.
 
-```
+```r
 # Provide a path to the demo data within the package:
 taxa <- assign_taxa(demo_path())
 # ...this could take some time...
