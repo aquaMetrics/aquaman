@@ -5,19 +5,17 @@ test_that("area function output matches Spotfire script", {
 
 
 test_that("test reintraid 2020 against reported results", {
-  skip("temporary internal test data")
-  library(readxl)
-  # reintraid <- read_excel("~/Downloads/2020-graph-reintraid.xlsx",
-  #                         sheet = "Spotfire")
-  # reintraid <- dplyr::rename(reintraid, "MCFF" = Site_name)
-  reintraid <- read_excel("~/Downloads/survey-iqi-spotfire-reintraid.xlsx")
-  reintraid <- dplyr::filter(reintraid, MCFF == "Reintraid")
-  # reintraid <- arrange(reintraid, Transect, Station)
-  reintraid <- rename(reintraid,
-                      "Survey_date" =  Survey_Date
-                      )
-  areas <- assess(reintraid
-                 )
-  # Test not matching - change to area calculator code since Feb 2022?
-  testthat::expect_equal(round(areas, 0), 37070)
+  data <- read.csv(
+    system.file("extdat",
+                "test-data/2022-reintraid.csv",
+                package = "aquaman"
+    ), check.names = FALSE
+  )
+
+  data <- dplyr::rename(data, "Survey_date" = Survey_Date)
+  area <- assess(data)
+  # Current spotfire testing
+  testthat::expect_equal(round(area[[1]], 0),   35780)
+  # Result reported - change to area calculator code since Feb 2022?
+  # testthat::expect_equal(round(area, 0), 37070)
 })
