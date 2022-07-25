@@ -7,7 +7,7 @@
 #' @export
 #' @importFrom stats AIC predict
 #' @importFrom rlang .data
-#' @importFrom dplyr mutate group_by ungroup n
+#' @importFrom dplyr mutate group_by ungroup n select
 #' @importFrom drc drm drmc L.3 L.4 L.5 LL.2 LL.3 LL.3u LL.4 LL.5 W1.2 W1.3 W1.4 W2.2 W2.3 W2.4 BC.4 BC.5 LL2.2 LL2.3 LL2.3u LL2.4 LL2.5 AR.2 AR.3 MM.2 MM.3
 #' @importFrom hexbin hexbin hcell2xy
 #' @importFrom envalysis mselect
@@ -18,9 +18,9 @@
 probability_non_linear <- function(data) {
 
   # Calculate number of stations per transect -------------------------------
-  data <- group_by(data, .data$MCFF_Transect)
-  data <- mutate(data, `Number of stations per transect` = n())
-  data <- ungroup(data)
+  data <- dplyr::group_by(data, .data$MCFF_Transect)
+  data <- dplyr::mutate(data, "Number of stations per transect" = dplyr::n())
+  data <- dplyr::ungroup(data)
 
   # Calculate class ----------------------------------------------------------
   data$`WFD status` <- "unclassifiable"
@@ -29,6 +29,23 @@ probability_non_linear <- function(data) {
   data$`WFD status`[data$IQI < 0.64] <- "Moderate"
   data$`WFD status`[data$IQI < 0.44] <- "Poor"
   data$`WFD status`[data$IQI < 0.24] <- "Bad"
+
+  # column order matters?  line 665: data2[, 5] etc etc
+  data <- dplyr::select(data,
+                        .data$Survey_date,
+                        .data$MCFF,
+                        .data$Transect,
+                        .data$Station,
+                        .data$IQI,
+                        .data$Easting,
+                        .data$Northing,
+                        .data$`MCFF_Transect`,
+                        .data$Longitude,
+                        .data$Latitude,
+                        .data$Bearing,
+                        .data$Distance,
+                        .data$`Number of stations per transect`,
+                        .data$`WFD status`)
 
   # This version incorporates the following changes:
   #   1 Removing L.3 as a possible model fit
