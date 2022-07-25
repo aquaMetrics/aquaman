@@ -39,7 +39,7 @@ assess <- function(data,
                         overrideBearing2,
                         overrideBearing3,
                         overrideBearing4)
-  breachs <- breach(probs)
+  breachs <- breach(overrides)
   areas <- area(breachs)
   return(areas$fifthPercentileArea)
 }
