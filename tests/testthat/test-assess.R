@@ -6,7 +6,6 @@ test_that("test reintraid 2020 against reported results", {
     ), check.names = FALSE
   )
 
-  reintraid <- reintraid[-15, ]
   area <- assess(reintraid)
 
   # Current spotfire testing
