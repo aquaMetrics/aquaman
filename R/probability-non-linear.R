@@ -30,7 +30,7 @@ probability_non_linear <- function(data) {
   data$`WFD status`[data$IQI < 0.44] <- "Poor"
   data$`WFD status`[data$IQI < 0.24] <- "Bad"
 
-  # column order matters?  line 665: data2[, 5] etc etc
+  # Filter columns to only required columns
   data <- dplyr::select(data,
                         .data$Survey_date,
                         .data$MCFF,
@@ -39,7 +39,7 @@ probability_non_linear <- function(data) {
                         .data$IQI,
                         .data$Easting,
                         .data$Northing,
-                        .data$`MCFF_Transect`,
+                        .data$MCFF_Transect,
                         .data$Longitude,
                         .data$Latitude,
                         .data$Bearing,
