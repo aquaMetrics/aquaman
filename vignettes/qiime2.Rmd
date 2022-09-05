@@ -1,0 +1,76 @@
+---
+title: "qiime2 pipeline"
+output: html_document
+date: "2022-09-01"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(aquaman)
+library(kraken)
+```
+
+## Assign Taxa
+
+Run the qiime2 bash file on MacOS or Linux. Recommend Windows Subsystem for Linux (WSL) if on Windows machine. This script requires the installation of qiime2 and conda libraries. 
+
+Additionally, need to update script to provide a path to directory containing .fastq files from Illumina instrument.
+
+```{r run_qiime2}
+
+path = "C:\\Users\\Tim.Foster\\OneDrive - Scottish Environment Protection Agency\\Reports\\Fish Farm\\operating_iqi_surveys\\ScreeningTool_SequenceData\\Site12R2AA_fastq"
+
+path <- demo_path()
+
+script_path <- system.file("extdat",
+    "qiime2-bash-script", package = "aquaman")
+# Only on Linux, Mac or WSL
+system(paste0("bash ", script_path, "/qiime2-taxa-assign.txt ", path))
+
+
+
+```
+
+## Import taxa
+
+```{r import}
+
+taxa <- import_qiime2(path = "")
+
+```
+
+
+## Calculate IQI
+
+```{r}
+
+iqi_score <- iqi(taxa)
+
+```
+
+
+## Import Survey
+
+```{r}
+
+survey <- import_survey(path = "")
+
+
+```
+
+## Merge taxa, survey, iqi scores
+
+```{r}
+data <- inner_join(survey, iqi_score, taxa)
+```
+
+
+## Calculate Area
+
+```{r}
+
+area <- assess(data)
+
+```
+
+

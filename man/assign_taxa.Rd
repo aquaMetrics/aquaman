@@ -4,28 +4,49 @@
 \alias{assign_taxa}
 \title{Assign Taxa}
 \usage{
-assign_taxa(path = NULL, tax_level = "family", multithread = FALSE)
+assign_taxa(
+  path = NULL,
+  folder_pattern = NULL,
+  taxonomy_file = NULL,
+  tax_level = NULL,
+  multithread = FALSE,
+  save_output = FALSE
+)
 }
 \arguments{
-\item{path}{to folder containing folder(s) of fastq files. Assuming
-DNA foldernames contain `001` and filenames have format
-`SAMPLENAME_XXX.fastq` - as per normal Illumina naming.}
+\item{path}{to folder containing folder(s) of fastq files. Assumes .fastq
+files have format `SAMPLENAME_XXXX.fastq` - XXXX... Must Be 'L001_R1_001'
+or L001_R2_001' as per normal Illumina naming. SAMPLENAME Must Be unique at
+least within the path.}
 
-\item{tax_level}{The taxonomic levels being assigned. Default is  "family",
-options are c("kingdom", "phylum", "class", "order", "family", "genus",
-"species").}
+\item{folder_pattern}{Optional Character string to match against folders to
+analyse. Often "001" can be used to identify Illumina generated folders.}
+
+\item{taxonomy_file}{Optional path to taxonomy file e.g.
+...silva_nr99_v138.1_train_set.fa.gz, otherwise will try to download file.}
+
+\item{tax_level}{The taxonomic levels being assigned. Default is  "Family",
+options are c("Kingdom", "Phylum", "Class", "Order", "Family", "genus",
+"Species").}
 
 \item{multithread}{Set to FALSE on windows. Only applies to
 dada2::filterAndTrim
 function `https://github.com/benjjneb/dada2/issues/1100`. The rest of the
 DADA2 functions will use multithread even on windows.}
+
+\item{save_output}{Boolean to indicating if taxa assigment data is
+saved/appended to 'output.csv' should be saved in the path after each
+folder. This can save progress if errors or crashes happen before
+completion.}
 }
 \value{
 dataframe containing assigned fmaily level taxa
 }
 \description{
-WORK IN PROGRESS - DO NOT USE IN PRODUCTION - Assign family taxa from .fastq
-files. Will prompt you to download taxonomic reference file on first use.
+WORK IN PROGRESS - DO NOT USE IN PRODUCTION - based on dada2 tutorial
+https://benjjneb.github.io/dada2/tutorial.html. Assign family taxa from
+.fastq files. Will prompt you to download taxonomic reference file on first
+use or user can provide `taxonomy_file = '...'` path.
 }
 \examples{
 \dontrun{

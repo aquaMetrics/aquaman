@@ -1,0 +1,358 @@
+---
+title: "aquaman"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{aquaman}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(aquaman)
+library(tidymodels)
+library(tidyverse)
+```
+
+
+For illustrative purposes, the code below was used to assign taxa to eDNA .fasta files from samples taken from a number of fish farms.  
+
+```{r, eval=FALSE}
+start <- Sys.time()
+reference_data <- assign_taxa(
+  path = "C:\\Users\\Tim.Foster\\OneDrive - Scottish Environment Protection Agency\\Reports\\Fish Farm\\operating_iqi_surveys\\ScreeningTool_SequenceData",
+  taxonomy_file = "C:\\Users\\Tim.Foster\\OneDrive - Scottish Environment Protection Agency\\Reports\\Fish Farm\\operating_iqi_surveys\\ScreeningTool_SequenceData\\silva_nr99_v138.1_train_set.fa.gz",
+  tax_level = "Family",
+  # folder_pattern = c("Site12R2AA","Site12R4AA"),
+  save_output = TRUE
+)
+
+end <- Sys.time()
+end - start
+```
+
+
+Join taxa assignment to sample metadata
+
+```{r}
+data <- reference_data %>% pivot_longer(-Family,
+  names_to = "sample_id",
+  values_to = "reads"
+)
+
+data <- inner_join(data, metadata, by = c("sample_id" = "sample_id"))
+```
+
+Select IQI and taxa 
+
+
+```{r}
+data <- datas %>% select(Family, IQI, sample_id, reads)
+```
+
+Pivot data prior to modelling
+
+```{r}
+
+data <- pivot_wider(data, names_from = Family, values_from = reads)
+```
+
+
+
+Split reference data into training and testing based on site_id.
+
+```{r}
+
+
+training_split <- function(data) {
+  set.seed(42)
+  training_sites <- data %>%
+    arrange(site_id) %>%
+    initial_split(prop = 0.80) %>%
+    training()
+
+  train <- data %>%
+    filter(site_id %in% training_sites$site_id)
+}
+
+test_split <- function(data) {
+  set.seed(42)
+  testing_sites <- data %>%
+    arrange(site_id) %>%
+    initial_split(prop = 0.80) %>%
+    testing()
+
+  test <- data %>%
+    filter(site_id %in% testing_sites$site_id)
+}
+
+dataset <- mutate(data,
+  train = data %>% map(training_split),
+  test = data %>% map(test_split)
+)
+```
+
+
+## Recipe
+
+The recipes defines model formula with `outcomes` and `predictors` separated by
+the `~` tilda operator. In this case, we are modelling IQI ~ taxa. The recipe
+can also deal with data processing and feature engineering steps such as time of
+year, scaling, centering or adding log values.
+
+```{r recipe}
+dataset_recipe <- function(train_data) {
+  rict_recipe <- recipe(iqi ~ .,
+    data = train_data
+  ) %>%
+    update_role(sample_id, new_role = "id variable") %>%
+    update_role(site_id, new_role = "id variable")
+  # Examples of useful processing steps but not required currently:
+  # step_mutate(date_month = month(date)) %>%
+  # step_rm(date)   %>%
+  # step_log(value, base = 10, offset = 1) %>%
+  # step_scale(all_numeric(), -value)  %>%
+  # step_center(all_numeric(), -value)
+  # step_mutate(value = as.factor(value))
+
+  rict_recipe <- rict_recipe %>%
+    prep(training = train_data, retain = TRUE)
+  return(rict_recipe)
+}
+
+dataset <- dataset %>%
+  mutate(
+    recipe = train %>% map(dataset_recipe)
+  )
+```
+
+## Prep data
+
+The 'recipe' is applied to the training data...
+
+```{r prep}
+juice_training <- function(recipe, data) {
+  data <- juice(recipe)
+  return(data)
+}
+dataset <- dataset %>%
+  mutate(
+    juice = map2(recipe, train, juice_training)
+  )
+```
+
+
+The recipe is applied to the testing data...
+
+```{r bake}
+bake_training <- function(recipe, test_data) {
+  test_normalized <- bake(recipe, new_data = test_data, all_predictors())
+}
+dataset <- dataset %>%
+  mutate(
+    baked = map2(recipe, test, bake_training)
+  )
+```
+
+## Select model type
+
+`tidymodels` package provide a standardised approach to setting up models.
+Allowing different models to be switched in an out without changing much code.
+  
+For example, below we set random forest model `rand_forest()`. This could be any
+number of other classification models such as general linear model `glm()` or a
+neutral networks.
+
+```{r model}
+rf_defaults <- rand_forest(
+  mode = "regression",
+  trees = 500
+  # ,
+  # mtry = tune()
+)
+rf_fit <- rf_defaults %>%
+  set_engine("ranger")
+# rf_fit <- NULL
+# rf_defaults <- linear_reg(mode = "regression", penalty = NULL, mixture = NULL)
+# rf_fit <- rf_defaults %>%   set_engine("lm")
+dataset$rf_fit <- list(rf_fit)
+```
+
+The tidymodel package provides a common set of functions and parameter names for
+controlling these models independent of the underlying model library. For
+instance, random forest has different implementations in the 'ranger' or
+'randomForest' packages. We declare which underlying package we wish to use in
+the `set_engine()` function.
+
+## Select model type
+
+`tidymodels` package provide a standardised approach to setting up models.
+Allowing different models to be switched in an out without changing much code.
+  
+For example, below we set random forest model `rand_forest()`. This could be any
+number of other classification models such as general linear model `glm()` or a
+neutral networks.
+
+```{r model}
+rf_defaults <- rand_forest(
+  mode = "regression",
+  trees = 500
+  # ,
+  # mtry = tune()
+)
+rf_fit <- rf_defaults %>%
+  set_engine("ranger")
+# rf_fit <- NULL
+# rf_defaults <- linear_reg(mode = "regression", penalty = NULL, mixture = NULL)
+# rf_fit <- rf_defaults %>%   set_engine("lm")
+dataset$rf_fit <- list(rf_fit)
+```
+
+The tidymodel package provides a common set of functions and parameter names for
+controlling these models independent of the underlying model library. For
+instance, random forest has different implementations in the 'ranger' or
+'randomForest' packages. We declare which underlying package we wish to use in
+the `set_engine()` function.
+
+```{r}
+
+data <- read.csv("C:\\Users\\Tim.Foster\\OneDrive - Scottish Environment Protection Agency\\Reports\\Fish Farm\\operating_iqi_surveys\\ScreeningTool_SequenceData\\MOWI-level-7.csv")
+
+
+SplitToTaxa <- function(S16Data) {
+  message("SplitToTaxa start")
+  message("Splits data into taxa levels")
+  # TestNGS1=Upload16S("Test");S16Data=TestNGS1#code testing
+  # TestNGS2=SplitToTaxa(TestNGS1)#Does this convert numerics to characters?
+  # Run2.1=TestNGS1#code testing
+  Run2.1 <- S16Data
+  # change 'Unassigned..' to 'D_0__Unassigned' to aid string split code
+  # colnames(Run2.1)[grep("Unassigned",colnames(Run2.1))]="D_0Unassigned"
+  # transpose, don't include the sample ID, need to keep the SampleID as
+  # colnames
+  Run2.2 <- as.data.frame(t(Run2.1[, -1])) 
+  # setNames, make the colnames=SampleID
+  Run2.2 <- setNames(data.frame(t(Run2.1[, -1])), Run2.1[, 1]) 
+
+  Run2.2$Taxa <- rownames(Run2.2)
+  # isolate the taxa names, ahead of cleaning them up.
+  Run2.3 <- as.data.frame(Run2.2[, "Taxa"]) 
+  colnames(Run2.3)[1] <- "Taxa"
+  # D__is the divider between taxa, from Silva
+  Run2.4 <- cSplit(Run2.3, splitCols = "Taxa", sep = c("D_"), drop = FALSE) 
+  # the cSplit inserts an NA column because the split criterion prefixes the
+  # name to be split.
+  Run2.4 <- Run2.4[, -2] # delete 1st unattributed column
+
+  colnames(Run2.4)[2:8] <- c("Kingdom",
+                             "Phylum",
+                             "Class",
+                             "Order",
+                             "Family",
+                             "Genus", 
+                             "Species")
+  pattern <- c("0__", "1__", "2__", "3__", "4__", "5__", "6__")
+  for (i in 1:length(pattern)) {
+    Run2.4[, 2:8] <- lapply(Run2.4[, 2:8],
+                            gsub, 
+                            pattern = pattern[i],
+                            replacement = "")
+  } # remove the 'patterns'
+  # replace periods with space.The [] escapes the character
+  Run2.4[, 2:8] <- lapply(Run2.4[, 2:8], 
+                          gsub, pattern = "[.]", 
+                          replacement = "") 
+  # Ambig_taxa worth removing.
+  Run2.4[, 2:8] <- lapply(Run2.4[, 2:8], gsub,
+                          pattern = "Ambiguous_taxa",
+                          replacement = "") 
+  
+  Run2.4[, 2:8] <- lapply(Run2.4[, 2:8],
+                          gsub,
+                          pattern = "uncult",
+                          replacement = NA,
+                          ignore.case = TRUE) 
+  Run2.4[, 2:8] <- lapply(Run2.4[, 2:8],
+                          gsub, pattern = "unknown",
+                          replacement = NA,
+                          ignore.case = TRUE) 
+  Run2.4[, 2:8] <- lapply(Run2.4[, 2:8], gsub,
+                          pattern = "incertae",
+                          replacement = NA,
+                          ignore.case = TRUE) 
+  Run2.4[, 2:8] <- lapply(Run2.4[, 2:8], gsub,
+                          pattern = "benzene", 
+                          replacement = NA, 
+                          ignore.case = TRUE) 
+  Run2.4[, 2:8] <- lapply(Run2.4[, 2:8],
+                          gsub,
+                          pattern = "unidentified", 
+                          replacement = NA, 
+                          ignore.case = TRUE)
+  Run2.4[, 2:8] <- lapply(Run2.4[, 2:8],
+                          gsub,
+                          pattern = ";_",
+                          replacement = NA,
+                          ignore.case = TRUE) 
+  Run2.4[, 2:8] <- lapply(Run2.4[, 2:8],  
+                          gsub, 
+                          pattern = "[^[:alnum:]]",
+                          replacement = "",
+                          ignore.case = TRUE) 
+  Run2.4[, 2:8] <- lapply(Run2.4[, 2:8],
+                          function(x) str_replace(x, ";", "")) 
+  # removes leading and tailing white_spaces
+  Run2.4[, 2:8] <- lapply(Run2.4[, 2:8], trimws, which = "both")
+
+  # the Run2.4[] -square brackets[] keep this as a dataframe.
+  # Run2.4$Taxa=Run2.4a$Taxa
+  Run2.5 <- Run2.4[, 1:8]
+  Run2.5 <- as.data.frame(Run2.5)
+  Run2.5[is.na(Run2.5)] <- "XUnidentified"
+
+  Run2.2$Taxa <- rownames(Run2.2)
+
+  Run2X <- merge(Run2.5, Run2.2)
+
+  MakeUnique <- FALSE # leave this code in.
+  if (MakeUnique == TRUE) {
+    id <- "XUnidentified"
+    MU <- function(xxx) {
+      A <- which(xxx == id)
+      XY <- make.unique(xxx[A], sep = "")
+      xxx[A] <- XY
+      return(xxx)
+    }
+    # removes leading and tailing white_spaces
+    Run2X[, 2:8] <- lapply(Run2X[, 2:8], MU) 
+  } # end of if(MakeUnique)
+  # tomw unique separator, chosen because unlikely to pre-exist in strings 
+  A <- "QXQ" 
+  Run2X <- within(Run2X, {
+    Phylum <- paste(Kingdom, Phylum, sep = A)
+    Class <- paste(Phylum, Class, sep = A)
+    Order <- paste(Class, Order, sep = A)
+    Family <- paste(Order, Family, sep = A)
+    Genus <- paste(Family, Genus, sep = A)
+    Species <- paste(Genus, Species, sep = A)
+  }) # rebuild full taxonomy
+  MDS1 <- Run2X
+  message("SplitToTaxa ends")
+  return(MDS1)
+} # returns MDS1; new version
+
+
+data_formatted <- SplitToTaxa(S16Data = data)
+
+
+pivot_wider(data_formatted, names_from = Family, values_fill =  )
+
+```

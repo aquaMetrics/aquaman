@@ -1,0 +1,242 @@
+#!/bin/bash
+
+conda activate qiime2-2022.2
+# Path to folder containing fastq files.
+RawDataPath=$1
+
+
+echo 'Running qiime2 script to assign taxa to S_16 DNA samples from Illumina .fastq input files found in path $1'
+
+date -u
+echo 'The argument entered is ' $1
+
+
+#read -p 'Enter Run1 or Run2: ' RunNumber
+### PARAMETERISATION ###
+
+#this is the site number, lazy coding edit from previous version.
+
+#for RunNumber in [4R4]
+
+#All Sites and Runs except 5 (non paired end format)
+
+#for RunNumber in 1 2 3 4R1 4R2 4R3 4R4 6 7 8 9 10 11 12R1 12R2 12R3 12R4
+#for RunNumber in 1 2 3 4R1 4R2 4R3 4R4 5 6 7 8 9 10 11 12R1 12R2 12R3 12R4
+
+# with high chimera losses.  Try-rerunning with changed parameterisatio (min_fold_parent_over_abundance) and maxee for merging
+#see https://github.com/benjjneb/dada2/issues/900
+
+for RunNumber in  1
+
+do
+
+### TABLE PARAMETERS
+# these are not implemented yet!
+MinFreq=10
+MinSamples=2
+
+### BLAST PARAMETERS
+MaxAccepts=10
+PercentID=0.80
+DataBase=16SDatabase
+
+### RAREFACTION PARAMETERS
+#RareMin and Max are the parameters to examine the rarefaction curves
+#RareDepth is the value chosen after examining the curve.
+RareMinDepth=100
+RareMaxDepth=10000
+RareDepth=4621
+
+# This rarefaction depth was determined by comparing rarefaction
+# curves for both runs. Min seems about right and retains most samples.
+
+
+Demux=Site${RunNumber}AA_demux_paired_end
+
+echo "The following Run is being processed" ${RunNumber}
+
+#:<<'END'
+
+
+#if file doesn't exist then continue
+{
+if [ ! -f ${Demux}.qza ]; then
+#for blocking out code look at https://stackoverflow.com/questions/947897/block-comments-in-a-shell-script
+
+echo 'CreateAretefact called ' ${Demux}
+#prints date to tracking file to assist in interpretation.
+#RawDataPath=Site${RunNumber}AA
+
+date -u
+
+qiime tools import \
+--type 'SampleData[PairedEndSequencesWithQuality]' \
+--input-path ${RawDataPath} \
+--input-format CasavaOneEightSingleLanePerSampleDirFmt \
+--output-path ${Demux}.qza
+
+fi
+}
+
+{
+if [ ! -f ${Demux}.qzv ]; then
+
+echo "artefact created, now generating visualization"
+
+qiime demux summarize \
+--i-data          ${Demux}.qza \
+--o-visualization ${Demux}.qzv
+
+echo 'Visualisation called ${Demux}.qzv created.'
+fi
+}
+
+
+{
+if [ ! -f ${Demux}CA.qza ]; then
+echo "### Applying Cut-adapt ###"
+
+qiime cutadapt trim-paired \
+--i-demultiplexed-sequences ${Demux}.qza \
+--p-front-f CTACGGGNGGCWGCAGCCTACGGGNGGCWGCAG \
+--p-front-r GACTACHVGGGTATCTAATCCGACTACHVGGGTATCTAATCC \
+--p-match-adapter-wildcards \
+--p-match-read-wildcards \
+--p-discard-untrimmed \
+--o-trimmed-sequences ${Demux}CA.qza
+
+fi
+}
+
+{
+if [ ! -f ${Demux}CA.qzv ]; then
+
+echo "artefact created, now generating visualization"
+
+qiime demux summarize \
+--i-data          ${Demux}CA.qza \
+--o-visualization ${Demux}CA.qzv
+
+echo 'Visualisation called ${Demux}CA.qzv created.'
+fi
+}
+
+### STEP B - GENERATE Q2 ARTEFACTS FROM FASTQ FILES ###
+#you need to input values here
+#RawDataPath=Site${RunNumber}AA
+
+{
+if [ ! -f ${RawDataPath}B_seq_rep.qza ]; then
+
+
+date -u
+
+echo "### Running denoise paired ###"
+qiime dada2 denoise-paired \
+--i-demultiplexed-seqs ${Demux}CA.qza \
+--p-trim-left-f 0 \
+--p-trim-left-r 0 \
+--p-trunc-len-f 230 \
+--p-trunc-len-r 225 \
+--p-min-fold-parent-over-abundance 8 \
+--p-max-ee-f 8 \
+--p-max-ee-r 8 \
+--p-n-threads 16 \
+--o-representative-sequences ${RawDataPath}B_seq_rep.qza \
+--o-table                    ${RawDataPath}B_seq_table.qza \
+--o-denoising-stats          ${RawDataPath}B_denoise_stats.qza
+echo "Denoise completed"
+
+fi
+}
+
+#RawDataPath is Site{RunNumber e.g. 19]
+
+{
+if [ ! -f ${RawDataPath}B_denoise_stats.qzv ]; then
+echo "Denoise visualisation generation"
+date -u
+
+qiime metadata tabulate \
+--m-input-file ${RawDataPath}B_denoise_stats.qza \
+--o-visualization ${RawDataPath}B_denoise_stats.qzv
+fi
+}
+
+
+echo '### GENERATE SEQUENCE and TABLE VISUALIZATIONS ###'
+{
+if [ ! -f ${RawDataPath}B_seq_table.qzv ]; then
+date -u
+
+echo 'generating seq_table visualization'
+echo ${RawDataPath}B_seq_table.qzv
+
+qiime feature-table summarize \
+--i-table ${RawDataPath}B_seq_table.qza \
+--o-visualization ${RawDataPath}B_seq_table.qzv \
+--m-sample-metadata-file SiteIDMetadata2.txt
+
+fi
+}
+
+echo '### GENERATE seq_rep ###'
+{
+if [ ! -f ${RawDataPath}B_seq_rep.qzv ]; then
+echo 'generating sequences visualization'
+date -u
+
+qiime feature-table tabulate-seqs \
+--i-data ${RawDataPath}B_seq_rep.qza \
+--o-visualization ${RawDataPath}B_seq_rep.qzv
+fi
+}
+
+
+echo '### BLAST ####'
+#BLAST PARAMETERISATION CAN BE BY USE INPUT
+#OR SET VALUES HERE.  CAN'T RUN NOHUP WITH USER INPUT
+echo 'The path is' ${RawDataPath}
+echo 'The MaxAccepts in the blast is '${MaxAccepts}
+echo 'The PercentID is ' ${PercentID}
+
+BlastName=${RawDataPath}C_16S_${DataBase}_BLAST_MaxA_${MaxAccepts}PercID_${PercentID}
+echo 'Blast file names is' ${BlastName}
+
+### ---STEP C - BLASTING, taxonomic
+
+{
+if [ ! -f $BlastName.qza ]; then
+#BLAST output file names
+echo "BLAST16S - 16S database"
+date -u
+
+qiime feature-classifier classify-consensus-blast \
+--i-query ${RawDataPath}B_seq_rep.qza \
+--i-reference-taxonomy 16S_majority_taxonomy_7_levels.qza \
+--i-reference-reads 99_otus_16S.qza \
+--o-classification ${BlastName}.qza \
+--p-perc-identity  $PercentID \
+--p-maxaccepts     $MaxAccepts
+
+echo "Initial blasting complete"
+fi
+}
+
+{
+if [ ! -f $BlastName.qzv ]; then
+echo "Create Barbplot"
+date -u
+
+qiime taxa barplot \
+--i-table ${RawDataPath}B_seq_table.qza \
+--i-taxonomy ${BlastName}.qza \
+--m-metadata-file SiteIDMetadata.txt \
+--o-visualization ${BlastName}.qzv
+echo "Barplot creation complete"
+fi
+}
+
+done
+#NOTE: RAREFACTION STEP NOT NECESSARY FOR SCOPETOOL.
+:<<'END'
