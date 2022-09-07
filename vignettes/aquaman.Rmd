@@ -12,7 +12,8 @@ editor_options:
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  eval=FALSE
 )
 ```
 
@@ -25,7 +26,7 @@ library(tidyverse)
 
 For illustrative purposes, the code below was used to assign taxa to eDNA .fasta files from samples taken from a number of fish farms.  
 
-```{r, eval=FALSE}
+```{r}
 start <- Sys.time()
 reference_data <- assign_taxa(
   path = "C:\\Users\\Tim.Foster\\OneDrive - Scottish Environment Protection Agency\\Reports\\Fish Farm\\operating_iqi_surveys\\ScreeningTool_SequenceData",
@@ -201,7 +202,7 @@ For example, below we set random forest model `rand_forest()`. This could be any
 number of other classification models such as general linear model `glm()` or a
 neutral networks.
 
-```{r model}
+```{r model_setup}
 rf_defaults <- rand_forest(
   mode = "regression",
   trees = 500

@@ -15,10 +15,15 @@ Imports:
   dplyr,
   purrr,
   rappdirs,
+  readxl,
+  rlang,
   RRF,
-  rlang
+  tibble,
+  tidyr,
+  uuid
 Remotes:
-  cran/argosfilter
+  cran/argosfilter,
+  aquaMetrics/kraken
 Depends: 
     R (>= 3.60)
 RoxygenNote: 7.2.1

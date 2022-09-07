@@ -4,12 +4,14 @@
 #'
 #' @param path Path to directory containing .fasta files
 #'
-#' @return
+#' @return dataframe
 #' @export
 #'
 #' @examples
-#' path = "OneDrive - Scottish Environment Protection Agency/Reports/Fish Farm/operating_iqi_surveys/ScreeningTool_SequenceData"
-#' qiime2_taxa_assign
+#' \dontrun{
+#' path <- "my_data_folder/"
+#' qiime2_taxa_assign(path)
+#' }
 
 qiime2_taxa_assign <- function(path = NULL) {
 
