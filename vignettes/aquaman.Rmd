@@ -1,6 +1,7 @@
 ---
 title: "aquaman"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown: html_vignette
 vignette: >
   %\VignetteIndexEntry{aquaman}
   %\VignetteEncoding{UTF-8}
@@ -32,7 +33,9 @@ reference_data <- assign_taxa(
   path = "C:\\Users\\Tim.Foster\\OneDrive - Scottish Environment Protection Agency\\Reports\\Fish Farm\\operating_iqi_surveys\\ScreeningTool_SequenceData",
   taxonomy_file = "C:\\Users\\Tim.Foster\\OneDrive - Scottish Environment Protection Agency\\Reports\\Fish Farm\\operating_iqi_surveys\\ScreeningTool_SequenceData\\silva_nr99_v138.1_train_set.fa.gz",
   tax_level = "Family",
-  # folder_pattern = c("Site12R2AA","Site12R4AA"),
+  folder_pattern = c("Site12R2AA"
+                     #,"Site12R4AA"
+                     ),
   save_output = TRUE
 )
 

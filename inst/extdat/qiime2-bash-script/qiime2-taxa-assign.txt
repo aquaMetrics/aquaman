@@ -1,14 +1,15 @@
 #!/bin/bash
 
-conda activate qiime2-2022.2
+
 # Path to folder containing fastq files.
 RawDataPath=$1
 
 
-echo 'Running qiime2 script to assign taxa to S_16 DNA samples from Illumina .fastq input files found in path $1'
+echo 'Running qiime2 script to assign taxa to S_16 DNA samples from
+Illumina .fastq input files found in path ' ${RawDataPath}
 
-date -u
-echo 'The argument entered is ' $1
+date=date -u
+echo 'The argument entered is ' ${RawDataPath}
 
 
 #read -p 'Enter Run1 or Run2: ' RunNumber

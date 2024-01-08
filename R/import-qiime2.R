@@ -7,23 +7,26 @@ import_qiime2 <- function(path = NULL) {
   library(data.table)
   library(splitstackshape)
   library(stringr)
-  library(tidyr)
+  library(tidyverse)
+  library(vegan)
 
 
+  # import_file <- function(path) {
+  #   message("importing file")
+  #   # ID files to be uploaded and merged.
+  #   # Upload and combine files, fill across all taxa
+  #   data <- rbindlist(lapply(path, fread), fill = TRUE)
+  #   data <- as.data.frame(data)
+  #   data[is.na(data)] <- 0
+  #   data <-dplyr::select(data, -file_name, -RUN, -station, -Transect, -replicate)
+  #   message("Function: 'Upload16S' end")
+  #   return(data)
+  # }
+  #
+  # data <- import_file(path)
+ #  C\Users\Tim.Foster\Documents\Projects\aquaman\inst\extdat\raw-taxa-data
+ S16Data <- readr::read_csv(path)
 
-  import_file <- function(path) {
-    message("importing file")
-    # ID files to be uploaded and merged.
-    # Upload and combine files, fill across all taxa
-    data <- rbindlist(lapply(path, fread), fill = TRUE)
-    data <- as.data.frame(data)
-    data[is.na(data)] <- 0
-    data <-dplyr::select(data, -file_name, -RUN, -station, -Transect, -replicate)
-    message("Function: 'Upload16S' end")
-    return(data)
-  }
-
-  data <- import_file(path)
 
   SplitToTaxa <- function(S16Data) {
     message("SplitToTaxa start")
@@ -35,7 +38,8 @@ import_qiime2 <- function(path = NULL) {
     # change 'Unassigned..' to 'D_0__Unassigned' to aid string split code
     # colnames(Run2.1)[grep("Unassigned",colnames(Run2.1))]="D_0Unassigned"
     Run2.2 <- as.data.frame(t(Run2.1[, -1])) # transpose, don't include the sample ID, need to keep the SampleID as colnames
-    Run2.2 <- setNames(data.frame(t(Run2.1[, -1])), Run2.1[, 1]) # setNames, make the colnames=SampleID
+    # Run2.2 <- setNames(data.frame(t(Run2.1[, -1])), Run2.1[, 1]) # setNames, make the colnames=SampleID
+    names(Run2.2) <-  unlist(Run2.1[, 1])
     Run2.2$Taxa <- rownames(Run2.2)
     Run2.3 <- as.data.frame(Run2.2[, "Taxa"]) # isolate the taxa names, ahead of cleaning them up.
     colnames(Run2.3)[1] <- "Taxa"
@@ -90,44 +94,53 @@ import_qiime2 <- function(path = NULL) {
     return(MDS1)
   }
 
-  taxa <- SplitToTaxa(data)
+  taxa <- SplitToTaxa(S16Data)
 
   TaxaCollate <- function(MDS1 , taxalevel) {
     message("Calling function Taxacollate")
     message("Collates data across specified taxonomic level")
     # df=as.data.table(TestNGS2);taxalevel=TaxaLevel
-    df <- as.data.table(MDS1)
+    df <- as.data.frame(MDS1)
     Excludes <- c("Taxa", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
     Excludes2 <- setdiff(Excludes, taxalevel)
-    df2 <- df[, !..Excludes2] # df2 in data.table format hence  ..! works
+    df2 <- dplyr::select(df, -Excludes2) # df2 in data.table format hence  ..! works
     names(df2)[1] <- "Taxon"
+    df2 <- as.data.table(df2)
     # df2 contains only the Taxon and the sample data.
     df3 <- melt(df2, id = "Taxon") # rm(df3)
     df4 <- data.table(df3)
     names(df4) <- c("Taxon", "SampleID", "Total") # sensible names for summarisation step via data.table
     df4$Taxon <- as.factor(df4$Taxon)
     # browser()
-    # df4$Total <- as.numeric(df4$Total)
+     df4$Total <- as.numeric(df4$Total)
+    # setDT(df4)
+    # df5 <- df4[,  # this generates the summary values by taxonomic group.
+    #    sum(Total)
+    # ,
+    # by = c(Taxon, SampleID)
+    # ]
+    df5 <- dplyr::group_by(df4, Taxon, SampleID) |>
+      dplyr::summarise("Total" = sum(Total))
 
-    df5 <- df4[, list( # this generates the summary values by taxonomic group.
-      Total =sum(Total)
-    ),
-    by = c("Taxon", "SampleID")
-    ]
     message("Ending function TaxaCollate")
     return(df5)
   }
 
 
   family <- TaxaCollate(taxa, "Family")
+  family <- ungroup(family)
   input <- dcast(family, SampleID ~ Taxon, value.var = "Total")
-  input_rare <- cbind(input[, 1], rrarefy(input[, -1], 2500))
-  input_test <- input_rare[, names(input_rare)[names(input_rare) %in% names(aquaman::demo_taxa)]]
-  input_test <- input_rare[, c(input_test)]
 
-  test <- dplyr::select(input_rare, input_test)
-  check <- dplyr::bind_rows(aquaman::demo_taxa, test)
-  check <- check[11:(10 + nrow(test)), ]
-  check[is.na(check)] <- 0
-  return(check)
+  input[is.na(input)] <- 0
+  input_rare <- cbind(input[, 1], vegan:::rrarefy(input[, -1], 2500))
+  input_rare <- data.frame(input_rare)
+  # input_test <- input_rare[, names(input_rare)[names(input_rare) %in% names(aquaman::demo_taxa)]]
+  # input_test <- input_rare[, c(names(input_test))]
+
+
+  input_rare <- dplyr::bind_rows(aquaman::demo_taxa, input_rare)
+  input_rare <- input_rare[(nrow(aquaman::demo_taxa) +1):nrow(input_rare), ]
+  input_rare[is.na(input_rare)] <- 0
+  row.names(input_rare)  <- input[, 1]
+  return(input_rare)
 }

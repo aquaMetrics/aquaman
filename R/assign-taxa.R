@@ -49,11 +49,33 @@ assign_taxa <- function(path = NULL,
   dirs <- sort(list.dirs(path, full.names = TRUE))
   # exclude parent directory
   dna_dirs <- dirs[2:length(dirs)]
+
+
   # Only folders matching user defined pattern
   if (!is.null(folder_pattern)) {
     dna_dirs <- unlist(lapply(folder_pattern, function(pattern) {
       dna_dirs <- dna_dirs[grep(pattern, dna_dirs)]
     }))
+  }
+  # Check no repeating file names
+  all_files <- purrr::map(dna_dirs, function(dir) {
+    files <- list.files(dir, pattern = ".fastq")
+    return(files)
+  })
+  all_files <- unlist(all_files)
+  duplicate_files <- all_files[duplicated(all_files)]
+  if (length(duplicate_files) > 0) {
+    paste_duplicate_files <- paste(duplicate_files, collapse = "\n")
+    warning(cat(
+      paste("You provided a dna data path:\n ",
+        path, "\n",
+        "However, this path contains duplicated files names in the folder or subfolders.\n",
+        "The duplicate file names:\n",
+        paste_duplicate_files,
+        sep = "",
+        collapse = "\n"
+      )
+    ), call. = FALSE)
   }
   # Forward and reverse fastq filenames have format:
   # SAMPLENAME_R1_001.fastq
@@ -62,8 +84,24 @@ assign_taxa <- function(path = NULL,
   taxa <- map_df(dna_dirs, function(dir) {
     fn_fs <- sort(list.files(dir, pattern = "_R1_001.fastq", full.names = TRUE))
     fn_rs <- sort(list.files(dir, pattern = "_R2_001.fastq", full.names = TRUE))
-
-
+    # Remove files which are duplicated.
+    if(length(duplicate_files) > 0) {
+    fn_fs <- purrr::map(fn_fs, function(file) {
+      f <- purrr::map(duplicate_files, function(dup) {
+        # if(file == "")
+        file <- file[grepl(dup, file) == FALSE]
+      })
+    })
+    fn_fs <- unlist(fn_fs)
+    fn_fs <- unique(fn_fs)
+    fn_rs <- purrr::map(fn_rs, function(file) {
+      f <- purrr::map(duplicate_files, function(dup) {
+        file <- file[grepl(dup, file) == FALSE]
+      })
+    })
+    fn_rs <- unlist(fn_rs)
+    fn_rs <- unique(fn_rs)
+    }
     # Sense check -------------------------------------------------------------
     if (length(fn_fs) == 0 && length(fn_rs) == 0) {
       warning(paste0(
@@ -103,19 +141,19 @@ assign_taxa <- function(path = NULL,
 
     # Trim -----------------------------------------------------------
     # Remove primers, see trimLeft parameter.
-    # nchar("CTACGGGNGGCWGCAGCCTACGGGNGGCWGCAG")
-    # nchar("GACTACHVGGGTATCTAATCCGACTACHVGGGTATCTAATCC")
+    # nchar("CCTACGGGNGGCWGCAG")
+    # nchar("GACTACHVGGGTATCTAATCC")
     out <- filterAndTrim(fn_fs,
       filt_fs,
       fn_rs,
       filt_rs,
-      truncLen = c(230, 225),
+      truncLen = c(160, 160),
       maxN = 0,
       maxEE = c(8, 8),
       truncQ = 2,
       rm.phix = TRUE,
       compress = TRUE,
-      trimLeft = c(33, 42),
+      trimLeft = c(17, 21),
       multithread = multithread
     )
     message(print(head(out)))
@@ -243,8 +281,7 @@ assign_taxa <- function(path = NULL,
         taxa_file <- utils::read.csv(file, check.names = FALSE)
         taxa_file <- dplyr::bind_rows(taxa_file, taxa_sequences)
         taxa_file <- group_by(taxa_file, across(tax_level))
-        taxa_file <- summarise_all(taxa_file, sum, na.rm = TRUE)
-
+        taxa_file <- summarize_all(taxa_file, sum, na.rm = TRUE)
         utils::write.csv(taxa_file,
           file = file,
           row.names = FALSE
@@ -261,6 +298,6 @@ assign_taxa <- function(path = NULL,
   })
 
   taxa <- group_by(taxa, .data$Family)
-  taxa <- summarise_all(taxa, mean, na.rm = TRUE)
+  taxa <- summarize_all(taxa, mean, na.rm = TRUE)
   return(taxa)
 }
