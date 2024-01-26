@@ -83,6 +83,8 @@ The Operator or SEPA lab will provide a link to where sequenced data is stored.
 
     `tr -d "/r" < qiime2-taxa–assign.txt > qiime2-taxa-assign-cleaned.txt`
 
+NOTE: If the bash script has run and output files exist, then the script checks if an output file exists and only runs the section of code if there is no output file. 
+
 ### Quality Control
 
 Refer to the [DNA SOP](https://www.sepa.org.uk/media/594636/guidance-on-the-use-of-dna-in-monitoring-compliance-with-seabed-mixing-zone-area-limits.pdf) for current requirements on number of reads required. Assess the '...demuxed_paired_end.qzv' files using [Qiime2 Viewer](https://view.qiime2.org/) where the number of merged reads can be verified.
