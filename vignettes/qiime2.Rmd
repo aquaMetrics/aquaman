@@ -1,5 +1,5 @@
 ---
-title: "How to run the Bioinformatics Pipeline"
+title: "How to run the Bioinformatics Scripts"
 output: 
   word_document:
   html_document: 
@@ -17,6 +17,7 @@ knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
 library(aquaman)
 library(kraken)
 library(ggplot2)
+library(readr)
 ```
 
 ### Summary
@@ -45,24 +46,22 @@ To run the 'IQI meiometbar SEPA screening tool' model (not sure what it should a
 
 The Operator or SEPA lab will provide a link to where sequenced data is stored.
 
-1.  Check these files will be in .fastq files.
-2.  Save the files to your One Drive within the 'dna-data' folder.
+1.  Check these files are .fastq.gz format.
+2.  Save the files tosharepoint Ecology drive '[results](https://scottishepa.sharepoint.com/:f:/r/sites/Ecology/DNA/Results?csf=1&web=1&e=806wgL)' folder.
 3.  Name the folder with the unique survey name.
 
 ### Run Assignment
 
-1.  On Windows, open WSL ubuntu 20.04, and 'mount' (mnt), the Windows folder containing the sequence data files. For example:
+1.  On Windows, open WSL ubuntu 20.04, and 'mount' (mnt), the Windows folder containing the sequence data files (sync-ed folder your one drive first). For example:
 
     ```{bash}
 
-    cd /mnt/c/Users/Tim.Foster/OneDrive\ -\ Scottish\ Environment\ Protection\ Agency/Reports/Fish\ Farm/operating_iqi_surveys/ScreeningTool_SequenceData/dna-data/  
+    cd /mnt/c/Users/Tim.Foster/OneDrive\ -\ Scottish\ Environment\ Protection\ Agency/DNA/Results/ 
     ```
 
     NOTE: For reference the \`qiime2-taxa-assign.txt\` file can be found here:
 
     [aquaman/inst/extdat/qiime2-bash-script at main · aquaMetrics/aquaman (github.com)](https://github.com/aquaMetrics/aquaman/tree/main/inst/extdat/qiime2-bash-script)
-
-    This file is also stored in the /dna-files folder.
 
 2.  Activate conda python environment required for Qiime2.
 
@@ -75,7 +74,7 @@ The Operator or SEPA lab will provide a link to where sequenced data is stored.
 4.  Run the bash script and provide a relative path to sequenced files.
 
     ```{bash}
-    bash /qiime2-taxa-assign.txt directory/containing/files
+    bash qiime2-taxa-assign.txt directory/containing/files
     ```
 
 5.  This produces a number of output files which will be stored in the sub-directory with dna-files.
@@ -86,7 +85,7 @@ The Operator or SEPA lab will provide a link to where sequenced data is stored.
 
 ### Quality Control
 
-Refer to the DNA SOP for current requirements on number of reads required. Assess the '...demuxed_paired_end.qzv' files using [Qiime2 Viewer](https://view.qiime2.org/) where the number of reads can be verified.
+Refer to the [DNA SOP](https://www.sepa.org.uk/media/594636/guidance-on-the-use-of-dna-in-monitoring-compliance-with-seabed-mixing-zone-area-limits.pdf) for current requirements on number of reads required. Assess the '...demuxed_paired_end.qzv' files using [Qiime2 Viewer](https://view.qiime2.org/) where the number of merged reads can be verified.
 
 The `classify-consensus-blast` Qiime2 command used in the script assign taxa uses the default settings to select taxa matches. The fixed percent identity to a taxa is 0.80.
 
@@ -104,16 +103,13 @@ Prior to running the IQI assessment of the taxonomic data, the .CSV data is conv
 
 1.  Open RStudio
 
-library(aquaman)
-
-taxa \<- import_qiime2(path = "C:\\\\Users\\\\Tim.Foster\\\\OneDrive - Scottish Environment Protection Agency\\\\Reports\\\\Fish Farm\\\\operating_iqi_surveys\\\\ScreeningTool_SequenceData\\\\dna-data\\\\intro-to-ngs-repeat-2023\\\\taxa.csv")
+Copy the following commands - adjusting to point to your directory of your taxa.csv file.
 
 ```{r, eval=FALSE}
 
 library(aquaman)
-taxa <- import_qiime2(path = "C:\\Users\\Tim.Foster\\OneDrive - Scottish Environment Protection Agency\\DNA\\Results\\BaseCalls\\taxa.csv")
-
 taxa <- import_qiime2(path = "C:\\Users\\Tim.Foster\\OneDrive - Scottish Environment Protection Agency\\DNA\\Results\\aquaculture-operator-data\\Kingairloch_16S-taxa.csv")
+
 
 ```
 
@@ -122,34 +118,36 @@ taxa <- import_qiime2(path = "C:\\Users\\Tim.Foster\\OneDrive - Scottish Environ
 Use the `iqi()` function to run the IQI model and calculate IQI.
 
 ```{r, eval=FALSE}
-
 iqi_score <- aquaman::iqi(taxa)
 iqi <- data.frame("sample" = names(iqi_score), "iqi" = iqi_score)
+```
 
-# example of where to save:
-# write.csv(iqi, "C:/Users/Tim.Foster/OneDrive - Scottish Environment Protection Agency/DNA/Results/aquaculture-operator-data/Kingairloch_16S/output/iqi-kingairloch.csv", row.names = FALSE)
-# write.csv(iqi, "C:/Users/Tim.Foster/OneDrive - Scottish Environment Protection Agency/DNA/Results/BaseCalls/iqi-basecalls.csv", row.names = FALSE)
+Examples of where to save:
+```{r, eval=FALSE}
+
+write.csv(iqi, "C:/Users/Tim.Foster/OneDrive - Scottish Environment Protection Agency/DNA/Results/aquaculture-operator-data/Kingairloch_16S/output/iqi-kingairloch.csv", row.names = FALSE)
+
 
 ```
 
-Example of quick plot of area (not really required - this is example of test data for against external operators IQI scores)
+Example of quick plot of IQI scores (not really required - this is example of test data for against external operators IQI scores)
 
 ```{r}
 
 iqi_compare <- read_csv("C:/Users/Tim.Foster/OneDrive - Scottish Environment Protection Agency/DNA/Results/aquaculture-operator-data/output/iqi-kingairloch.csv")
 
+
 # rename long variables to make plot better fit
 iqi_compare <- dplyr::rename(iqi_compare,
                     "all_sepa_mowi_rf" =  all_sepa_mowi_rf_test_predictions,
-                    "sepa_only_rf" =  sepa_only_mowi_rf_test_predictions,
-                    "sepa_screening_iqi" =  sepa_iqi_aquaman
+                    "sepa_screening_iqi" =  sepa_iqi_aquaman_update
                    )
 
 # pivot data pre-plotting
 iqi_pivot <- tidyr::pivot_longer(iqi_compare, cols =c(
   "all_sepa_mowi_rf",
+  "sepa_only_mowi_rf_test_predictions",
   "faunal_IQI",
-  "sepa_only_rf",	
   "sepa_screening_iqi"),
   names_to = "IQI type", 
   values_to = "IQI"
