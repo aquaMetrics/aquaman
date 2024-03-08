@@ -69,7 +69,7 @@ The Operator or SEPA lab will provide a link to where sequenced data is stored.
     conda activate qiime2-2022.2
     ```
 
-3. Check your VM has at least 10GB free storage space. And close all background programs (e.g. Teams, Web browser, Email etc)
+3.  Check your VM has at least 10GB free storage space. And close all background programs (e.g. Teams, Web browser, Email etc)
 
 4.  Run the bash script and provide a relative path to sequenced files.
 
@@ -83,21 +83,20 @@ The Operator or SEPA lab will provide a link to where sequenced data is stored.
 
     `tr -d "/r" < qiime2-taxa–assign.txt > qiime2-taxa-assign-cleaned.txt`
 
-NOTE: If the bash script has run and output files exist, then the script checks if an output file exists and only runs the section of code if there is no output file. 
+NOTE: If the bash script has run and output files exist, then the script checks if an output file exists and only runs the section of code if there is no output file.
 
 ### Quality Control
 
 Refer to the [DNA SOP](https://www.sepa.org.uk/media/594636/guidance-on-the-use-of-dna-in-monitoring-compliance-with-seabed-mixing-zone-area-limits.pdf) for current requirements on number of reads required. Assess the '...demuxed_paired_end.qzv' files using [Qiime2 Viewer](https://view.qiime2.org/) where the number of merged reads can be verified.
-
-The `classify-consensus-blast` Qiime2 command used in the script assign taxa uses the default settings to select taxa matches. The fixed percent identity to a taxa is 0.80.
 
 ### Export Taxa
 
 Taxa information must be exported to .CSV for later processing in R.
 
 1.  Drag and drop filenames containing '...S16....qzv' to [Qiime2 Viewer](https://view.qiime2.org/).
-2.  Select Taxonomic Level 7 from drop-down and click the 'Download as CSV' button.
-3.  Save files along side the .qzv files in the relevant dna-files/ directory.
+2.  Visually check samples diverse samples and no outliers.
+3.  Select Taxonomic Level 7 from drop-down and click the 'Download as CSV' button.
+4.  Save .CSV files along side the .qzv files in the relevant dna-files/ directory.
 
 ### Format Assigned Taxa
 
@@ -110,14 +109,14 @@ Copy the following commands - adjusting to point to your directory of your taxa.
 ```{r, eval=FALSE}
 
 library(aquaman)
-taxa <- import_qiime2(path = "C:\\Users\\Tim.Foster\\OneDrive - Scottish Environment Protection Agency\\DNA\\Results\\aquaculture-operator-data\\Kingairloch_16S-taxa.csv")
+taxa <- aquaman:::import_qiime2(path = "C:\\Users\\Tim.Foster\\OneDrive - Scottish Environment Protection Agency\\DNA\\Results\\BaseCalls\\taxa.csv")
 
 
 ```
 
 ### Calculate IQI
 
-Use the `iqi()` function to run the IQI model and calculate IQI.
+Use the `iqi()` function to run the IQI model and calculate IQI. The output from `iqi()` function is reproducible. The same input will provide the same output. The meiometbar scripts (ScopeTool - BioSS) re-trains the IQI from scratch each time, this takes longer and is not reproducible. I think due to `set.seed()` not being used 'fix' the randomness used when training the RF model. In other words, running the `RRF()` function with the same input data will generate a slightly different model each time. Setting `set.seed()` to the same value before running `RRF()` will create the same model each time.
 
 ```{r, eval=FALSE}
 iqi_score <- aquaman::iqi(taxa)
@@ -125,9 +124,10 @@ iqi <- data.frame("sample" = names(iqi_score), "iqi" = iqi_score)
 ```
 
 Examples of where to save:
+
 ```{r, eval=FALSE}
 
-write.csv(iqi, "C:/Users/Tim.Foster/OneDrive - Scottish Environment Protection Agency/DNA/Results/aquaculture-operator-data/Kingairloch_16S/output/iqi-kingairloch.csv", row.names = FALSE)
+write.csv(iqi, "C:/Users/Tim.Foster/OneDrive - Scottish Environment Protection Agency/DNA/Results/aquaculture-operator-data/output/iqi-kingairloch-update.csv", row.names = FALSE)
 
 
 ```
@@ -136,34 +136,33 @@ Example of quick plot of IQI scores (not really required - this is example of te
 
 ```{r}
 
-iqi_compare <- read_csv("C:/Users/Tim.Foster/OneDrive - Scottish Environment Protection Agency/DNA/Results/aquaculture-operator-data/output/iqi-kingairloch.csv")
+iqi_compare <- read_csv("C:/Users/Tim.Foster/OneDrive - Scottish Environment Protection Agency/DNA/Results/aquaculture-operator-data/output/iqi-kingairloch-update.csv")
 
 
 # rename long variables to make plot better fit
-iqi_compare <- dplyr::rename(iqi_compare,
-                    "all_sepa_mowi_rf" =  all_sepa_mowi_rf_test_predictions,
-                    "sepa_screening_iqi" =  sepa_iqi_aquaman_update
-                   )
+# iqi_compare <- dplyr::rename(iqi_compare,
+#                     "all_sepa_mowi_rf" =  all_sepa_mowi_rf_test_predictions,
+#                     "sepa_screening_iqi" =  sepa_iqi_aquaman_update
+#                    )
 
 # pivot data pre-plotting
 iqi_pivot <- tidyr::pivot_longer(iqi_compare, cols =c(
-  "all_sepa_mowi_rf",
-  "sepa_only_mowi_rf_test_predictions",
-  "faunal_IQI",
-  "sepa_screening_iqi"),
+  "MOWI_IQI",
+  "SEPA_IQI",
+  "INFAUNA_IQI"),
   names_to = "IQI type", 
   values_to = "IQI"
 )
 
 # plot
 plot <- ggplot(iqi_pivot, 
-               aes(Distance, IQI, group=`IQI type`)) +
+               aes(distance, IQI, group=`IQI type`)) +
   geom_line(aes(colour=`IQI type`)) + geom_point(aes(colour=`IQI type`)) +
-  facet_wrap(facets = as.factor(iqi_pivot$Transect))
+    geom_hline(yintercept=c(rep(0.64,63))) +
+  facet_wrap(facets = as.factor(iqi_pivot$transect)) + ggtitle("Kingairloch") 
+
 plot 
 ```
-
-(Check if set.seed will influence this?) May need to store output as static file. Not reproducible.
 
 ### Format for Access
 
