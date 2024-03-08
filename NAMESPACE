@@ -2,6 +2,7 @@
 
 export(assign_taxa)
 export(demo_path)
+export(import_qiime2)
 export(iqi)
 export(qiime2_taxa_assign)
 export(survey_import)

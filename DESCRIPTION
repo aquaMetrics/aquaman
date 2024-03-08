@@ -12,21 +12,27 @@ LazyData: true
 biocViews:
 Imports:
   dada2,
+  data.table,
   dplyr,
   purrr,
   rappdirs,
+  readr,
   readxl,
+  reshape2,
   rlang,
   RRF,
+  splitstackshape,
+  stringr,
   tibble,
   tidyr,
-  uuid
+  uuid,
+  vegan
 Remotes:
   cran/argosfilter,
   aquaMetrics/kraken
 Depends: 
     R (>= 3.60)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Suggests: 
     covr,
     knitr,
