@@ -115,7 +115,7 @@ import_qiime2 <- function(path = NULL) {
 
 
   family <- TaxaCollate(taxa, "Family")
-  family <- ungroup(family)
+  family <- dplyr::ungroup(family)
   input <- reshape2::dcast(family, SampleID ~ Taxon, value.var = "Total")
 
   input[is.na(input)] <- 0
