@@ -3,13 +3,18 @@
 #' Import .csv taxonomy file export from Qiime2 Viewer. The taxonomic data is
 #' re-structured to match the format required for the IQI model.
 #' @param path File path to the Qiime2 Viewer exported .csv file
-#'
+#' @param seed set.seed variable - default 1 to keep results reproducible. use
+#'   `set.seed()` as argument if you want randomness in results.
+#' @importFrom rlang .data
 #' @return dataframe 682 columns with sample names as row.names.
+#'
 #' @export
 #'
 #' @examples
-#' data <- import_qiime2(system.file("extdat/raw-taxa-data", "S16_TestMOWI.csv", package = "aquaman"))
-import_qiime2 <- function(path = NULL) {
+#' data <- import_qiime2(system.file("extdat/raw-taxa-data", "S16_TestMOWI.csv",
+#'   package = "aquaman"
+#' ))
+import_qiime2 <- function(path = NULL, seed = 1) {
   S16Data <- readr::read_csv(path)
   SplitToTaxa <- function(S16Data) {
     message("SplitToTaxa start")
@@ -106,8 +111,8 @@ import_qiime2 <- function(path = NULL) {
     # ,
     # by = c(Taxon, SampleID)
     # ]
-    df5 <- dplyr::group_by(df4, Taxon, SampleID) |>
-      dplyr::summarise("Total" = sum(Total))
+    df5 <- dplyr::group_by(df4, .data$Taxon, .data$SampleID) |>
+      dplyr::summarise("Total" = sum(.data$Total))
 
     message("Ending function TaxaCollate")
     return(df5)
@@ -117,8 +122,8 @@ import_qiime2 <- function(path = NULL) {
   family <- TaxaCollate(taxa, "Family")
   family <- dplyr::ungroup(family)
   input <- reshape2::dcast(family, SampleID ~ Taxon, value.var = "Total")
-
   input[is.na(input)] <- 0
+  set.seed(seed)
   input_rare <- cbind(input[, 1], vegan::rrarefy(input[, -1], 2500))
   input_rare <- data.frame(input_rare)
   # input_test <- input_rare[, names(input_rare)[names(input_rare) %in% names(aquaman::demo_taxa)]]
