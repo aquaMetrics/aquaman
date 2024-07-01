@@ -1,0 +1,81 @@
+---
+title: "Testing Bioinformatics Scripts"
+output: 
+  word_document:
+  html_document: 
+    toc: yes
+vignette: >
+  %\VignetteIndexEntry{qiime2}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+
+
+```{r}
+library(tidyverse)
+library(aquaman)
+```
+
+## Import raw taxa from qiime view to .csv export 
+
+```{r}
+taxa_tf <- read.csv(
+  path = 
+    "C:\\Users\\Tim.Foster\\OneDrive - Scottish Environment Protection Agency\\DNA\\Results\\SEPA-survey\\taxa.csv"
+  )
+
+taxa_dt <- read.csv(
+  path = 
+    "C:\\Users\\Tim.Foster\\OneDrive - Scottish Environment Protection Agency\\DNA\\Results\\SEPA-survey-DTVMCopy\\DTVMCopy_taxa.csv"
+)
+
+```
+
+
+## Import prcoess taxa
+
+Import taxa after being processed in `aquaman::import_qiime2`
+
+```{r}
+taxa_tf <- aquaman::import_qiime2(
+  path = 
+    "C:\\Users\\Tim.Foster\\OneDrive - Scottish Environment Protection Agency\\DNA\\Results\\SEPA-survey\\taxa.csv"
+  )
+
+taxa_dt <- aquaman::import_qiime2(
+  path = 
+    "C:\\Users\\Tim.Foster\\OneDrive - Scottish Environment Protection Agency\\DNA\\Results\\SEPA-survey-DTVMCopy\\DTVMCopy_taxa.csv"
+)
+
+```
+
+Import iqi outputs
+```{r}
+iqi_tf <- read.csv(
+"C:\\Users\\Tim.Foster\\OneDrive - Scottish Environment Protection Agency\\DNA\\Results\\SEPA-survey\\iqi.csv"
+)
+
+iqi_dt <- read.csv(
+"C:\\Users\\Tim.Foster\\OneDrive - Scottish Environment Protection Agency\\DNA\\Results\\SEPA-survey-DTVMCopy\\DTVMCopy_iqi.csv"
+)
+
+```
+
+Compare...
+
+```{r}
+
+iqi <-  aquaman::iqi(taxa)
+iqi2 <-  aquaman::iqi(taxa2)
+testthat::expect_equal(iqi, iqi2)
+testthat::expect_equal(iqi, iqi2)
+set.seed <-  10
+iqi3 <-  aquaman::iqi(taxa)
+iqi4 <-  aquaman::iqi(taxa2)
+testthat::expect_equal(iqi3, iqi4)
+test <- all.equal(taxa, taxa2)
+```
+

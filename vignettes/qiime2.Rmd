@@ -107,9 +107,9 @@ Prior to running the IQI assessment of the taxonomic data, the .CSV data is conv
 Copy the following commands - adjusting to point to your directory of your taxa.csv file.
 
 ```{r, eval=FALSE}
-
+library(tidyverse)
 library(aquaman)
-taxa <- aquaman:::import_qiime2(path = "C:\\Users\\Tim.Foster\\OneDrive - Scottish Environment Protection Agency\\DNA\\Results\\BaseCalls\\taxa.csv")
+taxa <- aquaman::import_qiime2(path = "C:\\Users\\Tim.Foster\\OneDrive - Scottish Environment Protection Agency\\DNA\\Results\\Quality\\taxa.csv")
 
 
 ```
@@ -123,11 +123,17 @@ iqi_score <- aquaman::iqi(taxa)
 iqi <- data.frame("sample" = names(iqi_score), "iqi" = iqi_score)
 ```
 
+-   Scenarios - map out?
+
+-   Remit of DNA IQI - screening - statement of limitations, disclaimer.
+
+-   Method statement ?
+
 Examples of where to save:
 
 ```{r, eval=FALSE}
 
-write.csv(iqi, "C:/Users/Tim.Foster/OneDrive - Scottish Environment Protection Agency/DNA/Results/aquaculture-operator-data/output/iqi-kingairloch-update.csv", row.names = FALSE)
+write.csv(iqi, "C:/Users/Tim.Foster/OneDrive - Scottish Environment Protection Agency/DNA/Results/Quality/iqi.csv", row.names = FALSE)
 
 
 ```
